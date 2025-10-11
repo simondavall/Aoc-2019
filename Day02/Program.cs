@@ -37,7 +37,6 @@ internal static class Program
     programCopy[2] = 2;
 
     IntcodeProgram.Execute(programCopy);
-//    ExecuteIntcodeProgram(programCopy);
 
     return programCopy[0];
   }
@@ -53,7 +52,7 @@ internal static class Program
         Array.Copy(_program, programCopy, _program.Length);
         programCopy[1] = noun;
         programCopy[2] = verb;
-        ExecuteIntcodeProgram(programCopy);
+        IntcodeProgram.Execute(programCopy);
         if (programCopy[0] == 19690720){
           terminated = true;
           result = 100 * noun + verb;
@@ -68,42 +67,6 @@ internal static class Program
       throw new ApplicationException("Correct value was not found. Program terminated.");
 
     return result;
-  }
-
-  private static void ExecuteIntcodeProgram(long[] program)
-  {
-    var ip = 0;
-    long resAddr, val1Addr, val2Addr;
-
-    while (ip < program.Length && program[ip] != 99)
-    {
-      var opCode = program[ip];
-      switch (opCode)
-      {
-        case 1: // add
-          if (ip + 4 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          val1Addr = program[ip + 1];
-          val2Addr = program[ip + 2];
-          resAddr = program[ip + 3];
-          program[resAddr] = program[val1Addr] + program[val2Addr];
-          ip += 4;
-          break;
-
-        case 2: // multiply
-          if (ip + 4 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          val1Addr = program[ip + 1];
-          val2Addr = program[ip + 2];
-          resAddr = program[ip + 3];
-          program[resAddr] = program[val1Addr] * program[val2Addr];
-          ip += 4;
-          break;
-
-        default:
-          throw new InvalidOperationException($"Unrecognized opCode: '{opCode}'");
-      }
-    }
   }
 
   private static void SetData(string[] args)

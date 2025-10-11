@@ -4,9 +4,9 @@ https://adventofcode.com/2019/day/2
 
 Part 1\
 Result: 6568671\
-Time elapsed (ms): 1.1037
+Time elapsed (ms): 1.2339
 
 Part 2\
 Result: 3951\
-Time elapsed (ms): 2.2543
+Time elapsed (ms): 1.9079
 
