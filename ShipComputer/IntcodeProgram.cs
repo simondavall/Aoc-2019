@@ -6,160 +6,51 @@ public class IntcodeProgram
 {
   // Set _verbose to true to activate the console log oputput diagnostics
   private static readonly bool _verbose = false;
-
+  private static long[] _ram = [];
+  private static long _ip;
   public static long DiagnosticCode { get; private set; }
 
-  public static void Execute(long[] program, int input = 0)
+  public static void Execute(long[] rom, int input = 0)
   {
-    var ip = 0;
-    long val1, val2;
+    _ip = 0;
+    _ram = new long[rom.Length];
+    Array.Copy(rom, _ram, rom.Length);
 
-    while (ip < program.Length && program[ip] != 99)
+    while (_ip < _ram.Length && _ram[_ip] != 99)
     {
-      var (modes, opCode) = GetOpCode(ip, program);
+      var (modes, opCode) = GetNextOpCode();
       switch (opCode)
       {
         case 1: // add
-          Log("--- Add ---");
-          if (ip + 4 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          Debug.Assert(modes[2] == 0, $"For a valid addition call, modes[2] must be zero. Value:'{modes[2]}'");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Log($"val1: {val1}");
-          Log($"Mode: {modes[1]}, Program[ip + 2]: {program[ip + 2]} ");
-          val2 = modes[1] == 0 ? program[program[ip + 2]] : program[ip + 2];
-          Log($"val2: {val2}");
-          Log($"Program[ip + 3]: {program[ip + 3]}, Addition:{val1 + val2} ");
-          Log($"Setting program[{program[ip + 3]}] to {val1 + val2}");
-          program[program[ip + 3]] = val1 + val2;
-          ip += 4;
-          Log($"New ip:{ip}");
+          Actions.Add(modes);
           break;
 
         case 2: // multiply
-          Log("--- Multiply ---");
-          if (ip + 4 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          Debug.Assert(modes[2] == 0, $"For a valid multiplication call, modes[2] must be zero. Value:'{modes[2]}'");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Log($"val1: {val1}");
-          Log($"Mode: {modes[1]}, Program[ip + 2]: {program[ip + 2]} ");
-          val2 = modes[1] == 0 ? program[program[ip + 2]] : program[ip + 2];
-          Log($"val2: {val2}");
-          Log($"Program[ip + 3]: {program[ip + 3]}, Multiply:{val1 * val2} ");
-          Log($"Setting program[{program[ip + 3]}] to {val1 * val2}");
-          program[program[ip + 3]] = val1 * val2;
-          ip += 4;
-          Log($"New ip:{ip}");
+          Actions.Multiply(modes);
           break;
 
         case 3: // input
-          Log("--- Input ---");
-          if (ip + 2 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          Debug.Assert(modes[0] == 0, $"For a valid input call, modes[0] must be zero. Value:'{modes[0]}'");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          Log($"Setting program[{program[ip + 1]}] to {input}");
-          program[program[ip + 1]] = input;
-          ip += 2;
-          Log($"New ip:{ip}");
+          Actions.Input(modes, input);
           break;
 
         case 4: // output
-          Log("--- Output ---");
-          if (ip + 2 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Console.WriteLine($"Program output:{val1}");
-          DiagnosticCode = val1;
-
-          ip += 2;
-          Log($"New ip:{ip}");
+          Actions.Output(modes);
           break;
 
         case 5: // jump if true
-          Log("--- Jump if true ---");
-          if (ip + 3 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Log($"val1: {val1}");
-          if (val1 > 0)
-          {
-            Log($"Mode: {modes[1]}, Program[ip + 2]: {program[ip + 2]} ");
-            val2 = modes[1] == 0 ? program[program[ip + 2]] : program[ip + 2];
-            Log($"Setting ip to val2:{val2}");
-            ip = (int)val2;
-          }
-          else
-            ip += 3;
-          Log($"New ip:{ip}");
+          Actions.JumpIfTrue(modes);
           break;
 
         case 6: // jump if false
-          Log("--- Jump if false ---");
-          if (ip + 3 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Log($"val1: {val1}");
-          if (val1 == 0)
-          {
-            Log($"Mode: {modes[1]}, Program[ip + 2]: {program[ip + 2]} ");
-            val2 = modes[1] == 0 ? program[program[ip + 2]] : program[ip + 2];
-            Log($"Setting ip to val2:{val2}");
-            ip = (int)val2;
-          }
-          else
-            ip += 3;
-          Log($"New ip:{ip}");
+          Actions.JumpIfFalse(modes);
           break;
 
         case 7: // less than
-          Log("--- Less Than ---");
-          if (ip + 4 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          Debug.Assert(modes[2] == 0, $"For a valid less than call, modes[2] must be zero. Value:'{modes[2]}'");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Log($"val1: {val1}");
-          Log($"Mode: {modes[1]}, Program[ip + 2]: {program[ip + 2]} ");
-          val2 = modes[1] == 0 ? program[program[ip + 2]] : program[ip + 2];
-          Log($"val2: {val2}");
-          Log($"Program[ip + 3]: {program[ip + 3]}, LessThan:{val1 < val2} ");
-          Log($"Setting program[{program[ip + 3]}] to {val1 < val2}");
-          program[program[ip + 3]] = val1 < val2 ? 1 : 0;
-          ip += 4;
-          Log($"New ip:{ip}");
+          Actions.LessThan(modes);
           break;
 
         case 8: // equal
-          Log("--- Equals ---");
-          if (ip + 4 >= program.Length)
-            throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-          Debug.Assert(modes[2] == 0, $"For a valid equality call, modes[2] must be zero. Value:'{modes[2]}'");
-
-          Log($"Mode: {modes[0]}, Program[ip + 1]: {program[ip + 1]} ");
-          val1 = modes[0] == 0 ? program[program[ip + 1]] : program[ip + 1];
-          Log($"val1: {val1}");
-          Log($"Mode: {modes[1]}, Program[ip + 2]: {program[ip + 2]} ");
-          val2 = modes[1] == 0 ? program[program[ip + 2]] : program[ip + 2];
-          Log($"val2: {val2}");
-          Log($"Program[ip + 3]: {program[ip + 3]}, Equal:{val1 == val2} ");
-          Log($"Setting program[{program[ip + 3]}] to {val1 == val2}");
-          program[program[ip + 3]] = val1 == val2 ? 1 : 0;
-          ip += 4;
-          Log($"New ip:{ip}");
+          Actions.Equals(modes);
           break;
 
         default:
@@ -168,10 +59,158 @@ public class IntcodeProgram
     }
   }
 
-  private static (int[] modes, int opcode) GetOpCode(int ip, long[] program)
+  private static class Actions
+  {
+    private static long a = 0, b = 0, w = 0;
+    internal static void Add(int[] modes)
+    {
+      Log("--- Add ---");
+      if (_ip + 4 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+      Debug.Assert(modes[2] == 0, $"For a valid addition call, modes[2] must be zero. Value:'{modes[2]}'");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      addr = _ram[_ip++];
+      b = modes[1] == 0 ? _ram[addr] : addr;
+      w = _ram[_ip++];
+      Log($"Setting Ram[{w}] to {a + b}");
+      _ram[w] = a + b;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void Multiply(int[] modes)
+    {
+      Log("--- Multiply ---");
+      if (_ip + 4 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+      Debug.Assert(modes[2] == 0, $"For a valid multiplication call, modes[2] must be zero. Value:'{modes[2]}'");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      addr = _ram[_ip++];
+      b = modes[1] == 0 ? _ram[addr] : addr;
+      w = _ram[_ip++];
+      Log($"Setting Ram[{w}] to {a * b}");
+      _ram[w] = a * b;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void Input(int[] modes, int input)
+    {
+      Log("--- Input ---");
+      if (_ip + 2 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+      Debug.Assert(modes[0] == 0, $"For a valid input call, modes[0] must be zero. Value:'{modes[0]}'");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      _ram[addr] = input;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void Output(int[] modes)
+    {
+      Log("--- Output ---");
+      if (_ip + 2 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      Console.WriteLine($"Program output:{a}");
+      DiagnosticCode = a;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void JumpIfTrue(int[] modes)
+    {
+      Log("--- Jump if true ---");
+      if (_ip + 3 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      if (a > 0)
+      {
+        addr = _ram[_ip++];
+        b = modes[1] == 0 ? _ram[addr] : addr;
+        Log($"Setting ip to b:{b}");
+        _ip = (int)b;
+      }
+      else
+        _ip++;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void JumpIfFalse(int[] modes)
+    {
+      Log("--- Jump if false ---");
+      if (_ip + 3 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      if (a == 0)
+      {
+        addr = _ram[_ip++];
+        b = modes[1] == 0 ? _ram[addr] : addr;
+        Log($"Setting ip to b:{b}");
+        _ip = (int)b;
+      }
+      else
+        _ip++;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void LessThan(int[] modes)
+    {
+      Log("--- Less Than ---");
+      if (_ip + 4 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+      Debug.Assert(modes[2] == 0, $"For a valid less than call, modes[2] must be zero. Value:'{modes[2]}'");
+
+      _ip++;
+      var addr = _ram[_ip++];
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      addr = _ram[_ip++];
+      b = modes[1] == 0 ? _ram[addr] : addr;
+      w = _ram[_ip++];
+      Log($"Setting Ram[{w}] to {a < b}");
+      _ram[w] = a < b ? 1 : 0;
+      Log($"New ip:{_ip}");
+    }
+
+    internal static void Equals(int[] modes)
+    {
+      Log("--- Equals ---");
+      if (_ip + 4 >= _ram.Length)
+        throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
+      Debug.Assert(modes[2] == 0, $"For a valid equality call, modes[2] must be zero. Value:'{modes[2]}'");
+
+      _ip++;
+      var addr = _ram[_ip++];
+
+      a = modes[0] == 0 ? _ram[addr] : addr;
+      addr = _ram[_ip++];
+
+      b = modes[1] == 0 ? _ram[addr] : addr;
+      w = _ram[_ip++];
+
+      Log($"Setting Ram[{w}] to {a == b}");
+      _ram[w] = a == b ? 1 : 0;
+      Log($"New ip:{_ip}");
+    }
+  }
+
+  private static (int[] modes, int opcode) GetNextOpCode()
   {
     int[] modes = new int[10];
-    var instruction = (int)program[ip];
+    var instruction = (int)_ram[_ip];
     var opcode = instruction % 100;
     instruction /= 100;
     int index = 0;

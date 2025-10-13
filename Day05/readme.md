@@ -15,9 +15,9 @@ Program output:10987514
 
 Part 1\
 Result: 10987514\
-Time elapsed (ms): 7.6348
+Time elapsed (ms): 4.0018
 Program output:14195011
 
 Part 2\
 Result: 14195011\
-Time elapsed (ms): 0.3891
+Time elapsed (ms): 1.6375
