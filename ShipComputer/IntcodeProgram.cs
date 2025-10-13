@@ -4,7 +4,7 @@ namespace ShipComputer;
 
 public class IntcodeProgram
 {
-  // Set _verbose to true to activate the console log oputput diagnostics
+  // Set _verbose to true to activate the console log output diagnostics
   private static readonly bool _verbose = false;
   private static long[] _ram = [];
   private static long _ip;
