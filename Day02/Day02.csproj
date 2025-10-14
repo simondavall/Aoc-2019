@@ -17,6 +17,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
+    
+    <PropertyGroup>
+      <NoWarn>$(NoWarn);IDE0305</NoWarn>
+    </PropertyGroup>
 
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
@@ -26,7 +30,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AocHelper\AocHelper.csproj" />
-      <ProjectReference Include="..\ShipComputer\ShipComputer.csproj" />
+      <ProjectReference Include="..\Spacecraft\Spacecraft.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using AocHelper;
-using ShipComputer;
+using Spacecraft;
 
 namespace Day02;
 
@@ -8,52 +8,48 @@ internal static class Program
 {
   private const long ExpectedPartOne = 0;
   private const long ExpectedPartTwo = 0;
-  private static long[] _program = [];
 
   public static int Main(string[] args)
   {
     PrintTitle();
 
-    SetData(args);
+    var program = GetData(args);
 
     var stopwatch = Stopwatch.StartNew();
 
-    var resultPartOne = PartOne();
+    var resultPartOne = PartOne(program);
     PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var resultPartTwo = PartTwo();
+    var resultPartTwo = PartTwo(program);
     PrintResult("2", resultPartTwo.ToString(), stopwatch);
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
-  private static long PartOne()
+  private static long PartOne(long[] program)
   {
-    long[] programCopy = new long[_program.Length];
-    Array.Copy(_program, programCopy, _program.Length);
+    var computer = new IntcodeComputer(program);
+    computer.SetMemory(1, 12);
+    computer.SetMemory(2, 2);
+    computer.Execute(new Queue<long>([0]));
 
-    // Remove the following reset if running the sample data.
-    programCopy[1] = 12;
-    programCopy[2] = 2;
-
-    IntcodeProgram.Execute(programCopy);
-
-    return programCopy[0];
+    return computer.ReadMemory(0);
   }
 
-  private static long PartTwo()
+  private static long PartTwo(long[] program)
   {
     long result = 0;
-    long[] programCopy = new long[_program.Length];
+    var computer = new IntcodeComputer(program); 
 
     bool terminated = false;
     for (int noun = 0; noun < 100; noun++){
       for (int verb = 0; verb < 100; verb++){
-        Array.Copy(_program, programCopy, _program.Length);
-        programCopy[1] = noun;
-        programCopy[2] = verb;
-        IntcodeProgram.Execute(programCopy);
-        if (programCopy[0] == 19690720){
+        computer.Reset();
+        computer.SetMemory(1, noun);
+        computer.SetMemory(2, verb);
+        computer.Execute(new Queue<long>([0]));
+
+        if (computer.ReadMemory(0) == 19690720){
           terminated = true;
           result = 100 * noun + verb;
           break;
@@ -69,14 +65,16 @@ internal static class Program
     return result;
   }
 
-  private static void SetData(string[] args)
+  private static long[] GetData(string[] args)
   {
-    var filename = "Day02/sample.txt";
+    var filename = "sample.txt";
     if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
       filename = args[0];
 
     using var streamReader = new StreamReader(filename);
-    _program = streamReader.ReadToEnd().Split([',', '\n'], StringSplitOptions.RemoveEmptyEntries).ToLongArray();
+    var data = streamReader.ReadToEnd().Split([',', '\n'], StringSplitOptions.RemoveEmptyEntries).ToLongArray();
+
+    return data;
   }
 
   private static void PrintTitle()
