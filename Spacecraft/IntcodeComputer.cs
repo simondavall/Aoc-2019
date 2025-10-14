@@ -4,40 +4,66 @@ namespace Spacecraft;
 
 public class IntcodeComputer
 {
-  private readonly bool _isLoggingActive = false;
+  private readonly bool _isLoggingActive;
   private readonly long[] _rom = [];
   private readonly long[] _ram = [];
   private long _ip;
-  private readonly Stack<long> _output = [];
+  private bool _isHalted = false;
+  private readonly Queue<long> _input = [];
+  private readonly Queue<long> _output = [];
+  private long _lastOutput;
+  private long a = 0, b = 0, w = 0;
 
   public IntcodeComputer(long[] program)
   {
-    _rom = program; 
+    _isLoggingActive = false;
+    _rom = program;
     _ram = new long[program.Length];
     Array.Copy(program, _ram, program.Length);
   }
 
-  internal static Dictionary<(int phase, long input), long> _cache = [];
-
-  public static long Acs(Queue<int> phasing, long[] program)
+  public static long AcsWithFeedback(Queue<int> phasing, long[] program)
   {
-    _cache = [];
-    var input = 0L;
-    var output = 0L;
+    long input = 0;
+    long output = 0;
+    IntcodeComputer[] amps = new IntcodeComputer[5];
+
+    int currentAmp = 0;
+
     while (true)
     {
       if (!phasing.TryDequeue(out var phase))
         break;
 
-      if (_cache.TryGetValue((phase, input), out var cachedItem)){
-        output = cachedItem;
-      }
-      else{
-        var core = new IntcodeComputer(program);
-        core.Execute(new Queue<long>([phase, input]));
-        output = core.GetOutput().FirstOrDefault();
-        _cache[(phase, input)] = output;
-      }
+      var q = new Queue<long>([phase, input]);
+
+      amps[currentAmp] = new IntcodeComputer(program);
+      amps[currentAmp].Execute(q);
+      output = amps[currentAmp].GetLastOutput;
+
+      input = output;
+      currentAmp++;
+    }
+
+    return output;
+  }
+
+  public static long Acs(Queue<int> phasing, long[] program)
+  {
+    long input = 0;
+    long output = 0;
+
+
+    while (true)
+    {
+      if (!phasing.TryDequeue(out var phase))
+        break;
+
+      var q = new Queue<long>([phase, input]);
+
+      var amp = new IntcodeComputer(program);
+      amp.Execute(q);
+      output = amp.GetLastOutput;
 
       input = output;
     }
@@ -45,71 +71,11 @@ public class IntcodeComputer
     return output;
   }
 
-  // public static long AcsFeedback(int[] phasing, int[] feedbackPhasing, long[] program)
-  // {
-  //   _cache = [];
-  //   var input = 0L;
-  //   var output = 0L;
-  //
-  //   List<IntcodeComputer> amps = [];
-  //   for (int i = 0; i < 5; i++){
-  //     amps.Add(new IntcodeComputer(program));
-  //   }
-  //
-  //   while (true)
-  //   {
-  //     for(var i = 0; i < 5; i++){
-  //       if (!amps[i].IsHalted){
-  //         amps[i].Execute(new Queue<long>([phasing[i], input]));
-  //
-  //       }
-  //     }
-  //
-  //     if (_cache.TryGetValue((phase, input), out var cachedItem)){
-  //       output = cachedItem;
-  //     }
-  //     else{
-  //       var core = new IntcodeComputer(program);
-  //       core.Execute(new Queue<long>([phase, input]));
-  //       output = core.GetOutput();
-  //       _cache[(phase, input)] = output;
-  //     }
-  //
-  //     input = output;
-  //   }
-  //
-  //   return output;
-  // }
-
-  public long[] GetOutput()
-  {
-    return _output.ToArray();
-  }
-
-  public long ReadMemory(long address){
-    if (address < 0 || address >= _ram.Length)
-      return _ram.FirstOrDefault();
-
-    return _ram[address];  
-  }
-
-  public void SetMemory(long address, long value){
-    if (address >= 0 && address < _ram.Length)
-      _ram[address] = value;
-  }
-
-  public void Reset(){
-    Array.Copy(_rom, _ram, _rom.Length);
-    _cache = [];
-    _ip = 0;
-  }
-
   public void Execute(Queue<long> inputs)
   {
-    bool isHalted = false;
     _ip = 0;
 
-    while (_ip < _ram.Length && !isHalted)
+    while (_ip < _ram.Length && !_isHalted)
     {
       var (modes, opCode) = GetNextOpCode();
       switch (opCode)
@@ -128,7 +94,8 @@ public class IntcodeComputer
           Input(modes, input);
           break;
 
-        case 4:;
+        case 4:
+          ;
           Output(modes);
           break;
 
@@ -149,7 +116,7 @@ public class IntcodeComputer
           break;
 
         case 99:
-          isHalted = true;
+          _isHalted = true;
           break;
 
         default:
@@ -158,7 +125,36 @@ public class IntcodeComputer
     }
   }
 
-  private long a = 0, b = 0, w = 0;
+  public long[] GetOutput()
+  {
+    return _output.ToArray();
+  }
+
+  public long GetLastOutput => _lastOutput;
+
+  public long ReadMemory(long address)
+  {
+    if (address < 0 || address >= _ram.Length)
+      return _ram.FirstOrDefault();
+
+    return _ram[address];
+  }
+
+  public void SetMemory(long address, long value)
+  {
+    if (address >= 0 && address < _ram.Length)
+      _ram[address] = value;
+  }
+
+  public void Reset()
+  {
+    Array.Copy(_rom, _ram, _rom.Length);
+    //_cache = [];
+    _ip = 0;
+  }
+
+  public bool IsHalted => _isHalted;
+
   internal void Add(int[] modes)
   {
     Log("--- Add ---");
@@ -204,6 +200,8 @@ public class IntcodeComputer
 
     _ip++;
     var addr = _ram[_ip++];
+
+    //Console.WriteLine($"Saving input {input} to memory slot {addr}");
     _ram[addr] = input;
     Log($"New ip:{_ip}");
   }
@@ -217,7 +215,10 @@ public class IntcodeComputer
     _ip++;
     var addr = _ram[_ip++];
     a = modes[0] == 0 ? _ram[addr] : addr;
-    _output.Push(a);
+    _output.Enqueue(a);
+    _lastOutput = a;
+
+    //Console.WriteLine($"Saving output {a}");
     Log($"New ip:{_ip}");
   }
 
