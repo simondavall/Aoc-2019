@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using AocHelper;
-using ShipComputer;
+using Spacecraft;
 
 namespace Day05;
 
@@ -26,22 +26,34 @@ internal static class Program
 
   private static long PartOne()
   {
-    long[] programCopy = new long[_program.Length];
-    Array.Copy(_program, programCopy, _program.Length);
-
-    IntcodeProgram.Execute(programCopy, 1);
-
-    return IntcodeProgram.DiagnosticCode;
+    var computer = new IntcodeComputer(_program);
+    while (!computer.IsHalted)
+    {
+      if (computer.IsAwaitingInput)
+      {
+        computer.SetInput(1);
+      }
+      computer.Execute();
+    }
+  
+    var fullOutput = computer.GetOutput();
+    Console.WriteLine($"Full output: {fullOutput.Print()}");
+    return computer.GetLastOutput;
   }
 
   private static long PartTwo()
   {
-    long[] programCopy = new long[_program.Length];
-    Array.Copy(_program, programCopy, _program.Length);
+    var computer = new IntcodeComputer(_program);
+    while (!computer.IsHalted)
+    {
+      if (computer.IsAwaitingInput)
+      {
+        computer.SetInput(5);
+      }
+      computer.Execute();
+    }
 
-    IntcodeProgram.Execute(programCopy, 5);
-
-    return IntcodeProgram.DiagnosticCode;
+    return computer.GetLastOutput;
   }
 
   private static void SetData(string[] args)
