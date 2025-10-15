@@ -32,11 +32,14 @@ internal static class Program
     {
       long lastOutput = 0;
       bool phaseInput = true;
-      for (var i = 0; i < 5; i++){
+      for (var i = 0; i < 5; i++)
+      {
         var amp = new IntcodeComputer(program);
-        while(!amp.IsHalted){
-          if (amp.IsAwaitingInput){
-            if(phaseInput)
+        while (!amp.IsHalted)
+        {
+          if (amp.IsAwaitingInput)
+          {
+            if (phaseInput)
               amp.SetInput(phase[i]);
             else
               amp.SetInput(lastOutput);
@@ -56,14 +59,37 @@ internal static class Program
   {
     long maxSignal = 0;
 
-    // var test = IntcodeComputer.AcsWithBoost(new Queue<int>([9,8,7,6,5]), program);
-    // foreach (var seq in GetPhasingSequences(5, 9))
-    // {
-    //   var phasingSequence = new Queue<int>(seq);
-    //   //Console.WriteLine($"{seq[0]},{seq[1]},{seq[2]},{seq[3]},{seq[4]}");
-    //   var outputSignal = IntcodeComputer.AcsWithBoost(phasingSequence, program);
-    //   maxSignal = Math.Max(maxSignal, outputSignal);
-    // }
+    foreach (var phase in GetPhasingSequences(5, 9))
+    {
+      var phaseInput = Helper.CreateArray(5, true);
+
+      var amps = new IntcodeComputer[5];
+      for (var i = 0; i < 5; i++)
+        amps[i] = new IntcodeComputer(program);
+
+      var cur = 0;
+      while (!amps[4].IsHalted)
+      {
+        if (amps[cur].IsAwaitingInput)
+        {
+          if (phaseInput[cur])
+          {
+            amps[cur].SetInput(phase[cur]);
+            phaseInput[cur] = false;
+          }
+          else
+          {
+            var prevAmpOutput = amps[(cur + 4) % 5].GetLastOutput;
+            amps[cur].SetInput(prevAmpOutput);
+          }
+        }
+        amps[cur].Execute();
+        
+        cur = (cur + 1) % 5;
+      }
+
+      maxSignal = Math.Max(maxSignal, amps[4].GetLastOutput);
+    }
 
     return maxSignal;
   }

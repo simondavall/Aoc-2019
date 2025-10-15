@@ -101,7 +101,7 @@ public class IntcodeComputer
     }
   }
 
-  public long GetLastOutput => _output.Peek();
+  public long GetLastOutput => _output.Count > 0 ? _output.Peek() : 0;
 
   public bool IsHalted => _isHalted;
 
