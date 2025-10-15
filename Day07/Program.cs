@@ -6,8 +6,8 @@ namespace Day07;
 
 internal static class Program
 {
-  private const long ExpectedPartOne = 0;
-  private const long ExpectedPartTwo = 0;
+  private const long ExpectedPartOne = 880726;
+  private const long ExpectedPartTwo = 4931744;
 
   public static int Main(string[] args)
   {

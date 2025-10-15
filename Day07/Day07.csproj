@@ -29,4 +29,8 @@
       <ProjectReference Include="..\Spacecraft\Spacecraft.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+      <NoWarn>$(NoWarn);IDE0305</NoWarn>
+    </PropertyGroup>
+
 </Project>
