@@ -6,8 +6,8 @@ namespace Day02;
 
 internal static class Program
 {
-  private const long ExpectedPartOne = 0;
-  private const long ExpectedPartTwo = 0;
+  private const long ExpectedPartOne = 6568671;
+  private const long ExpectedPartTwo = 3951;
 
   public static int Main(string[] args)
   {
@@ -31,7 +31,12 @@ internal static class Program
     var computer = new IntcodeComputer(program);
     computer.SetMemory(1, 12);
     computer.SetMemory(2, 2);
-    computer.Execute(new Queue<long>([0]));
+    while(!computer.IsHalted){
+      if (computer.IsAwaitingInput)
+        computer.SetInput(0);
+
+      computer.Execute();
+    }
 
     return computer.ReadMemory(0);
   }
@@ -39,15 +44,20 @@ internal static class Program
   private static long PartTwo(long[] program)
   {
     long result = 0;
-    var computer = new IntcodeComputer(program); 
+    IntcodeComputer computer; 
 
     bool terminated = false;
     for (int noun = 0; noun < 100; noun++){
       for (int verb = 0; verb < 100; verb++){
-        computer.Reset();
+        computer = new IntcodeComputer(program);
         computer.SetMemory(1, noun);
         computer.SetMemory(2, verb);
-        computer.Execute(new Queue<long>([0]));
+        while(!computer.IsHalted){
+          if (computer.IsAwaitingInput)
+            computer.SetInput(0);
+
+          computer.Execute();
+        }
 
         if (computer.ReadMemory(0) == 19690720){
           terminated = true;
