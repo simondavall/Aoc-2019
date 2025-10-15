@@ -4,10 +4,10 @@ namespace Day04;
 
 internal static class Program
 {
-  private const long ExpectedPartOne = 0;
-  private const long ExpectedPartTwo = 0;
+  private const long ExpectedPartOne = 2050;
+  private const long ExpectedPartTwo = 1390;
 
-  public static int Main()
+  public static int Main(string[] args)
   {
     PrintTitle();
     var stopwatch = Stopwatch.StartNew();

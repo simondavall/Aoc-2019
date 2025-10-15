@@ -9,10 +9,25 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Update="inputDay04.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="sample.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Aoc</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\AocHelper\AocHelper.csproj" />
     </ItemGroup>
     
     <PropertyGroup>
-      <NoWarn>$(NoWarn);IDE0305</NoWarn>
+      <NoWarn>$(NoWarn);IDE0305;IDE0060</NoWarn>
     </PropertyGroup>
 </Project>
