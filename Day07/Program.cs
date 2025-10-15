@@ -28,12 +28,25 @@ internal static class Program
   {
     long maxSignal = 0;
 
-    foreach (var seq in GetPhasingSequences(0, 4))
+    foreach (var phase in GetPhasingSequences(0, 4))
     {
-      var phasingSequence = new Queue<int>(seq);
-      // Console.WriteLine($"{seq[0]},{seq[1]},{seq[2]},{seq[3]},{seq[4]}");
-      var outputSignal = IntcodeComputer.Acs(phasingSequence, program);
-      maxSignal = Math.Max(maxSignal, outputSignal);
+      long lastOutput = 0;
+      bool phaseInput = true;
+      for (var i = 0; i < 5; i++){
+        var amp = new IntcodeComputer(program);
+        while(!amp.IsHalted){
+          if (amp.IsAwaitingInput){
+            if(phaseInput)
+              amp.SetInput(phase[i]);
+            else
+              amp.SetInput(lastOutput);
+            phaseInput = !phaseInput;
+          }
+          amp.Execute();
+        }
+        lastOutput = amp.GetLastOutput;
+      }
+      maxSignal = Math.Max(maxSignal, lastOutput);
     }
 
     return maxSignal;
@@ -43,20 +56,21 @@ internal static class Program
   {
     long maxSignal = 0;
 
+    // var test = IntcodeComputer.AcsWithBoost(new Queue<int>([9,8,7,6,5]), program);
     // foreach (var seq in GetPhasingSequences(5, 9))
     // {
     //   var phasingSequence = new Queue<int>(seq);
     //   //Console.WriteLine($"{seq[0]},{seq[1]},{seq[2]},{seq[3]},{seq[4]}");
-    //   var outputSignal = IntcodeComputer.Acs(phasingSequence, program);
+    //   var outputSignal = IntcodeComputer.AcsWithBoost(phasingSequence, program);
     //   maxSignal = Math.Max(maxSignal, outputSignal);
     // }
-    //
+
     return maxSignal;
   }
 
   private static long[] GetData(string[] args)
   {
-    var filename = "Day07/sample.txt";
+    var filename = "Day07/inputDay07.txt";
     if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
       filename = args[0];
 

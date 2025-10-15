@@ -4,115 +4,59 @@ namespace Spacecraft;
 
 public class IntcodeComputer
 {
-  private readonly bool _isLoggingActive;
-  private readonly long[] _rom = [];
   private readonly long[] _ram = [];
-  private long _ip;
   private bool _isHalted = false;
-  private readonly Queue<long> _input = [];
-  private readonly Queue<long> _output = [];
-  private long _lastOutput;
-  private long a = 0, b = 0, w = 0;
+  private bool _isAwaitingInput = false;
+  private readonly Stack<long> _output = [];
+  private readonly long[] param = new long[3];
+  private readonly Actions _actions;
 
   public IntcodeComputer(long[] program)
   {
-    _isLoggingActive = false;
-    _rom = program;
     _ram = new long[program.Length];
     Array.Copy(program, _ram, program.Length);
+    _actions = new Actions(_ram);
   }
 
-  public static long AcsWithFeedback(Queue<int> phasing, long[] program)
+  public void Execute()
   {
-    long input = 0;
-    long output = 0;
-    IntcodeComputer[] amps = new IntcodeComputer[5];
-
-    int currentAmp = 0;
-
-    while (true)
+    while (!_isAwaitingInput && !_isHalted)
     {
-      if (!phasing.TryDequeue(out var phase))
-        break;
+      Debug.Assert(Ip < _ram.Length && Ip >= 0, $"Instruction pointer is out of bounds. Terminaling program. Ip:{Ip}");
 
-      var q = new Queue<long>([phase, input]);
-
-      amps[currentAmp] = new IntcodeComputer(program);
-      amps[currentAmp].Execute(q);
-      output = amps[currentAmp].GetLastOutput;
-
-      input = output;
-      currentAmp++;
-    }
-
-    return output;
-  }
-
-  public static long Acs(Queue<int> phasing, long[] program)
-  {
-    long input = 0;
-    long output = 0;
-
-
-    while (true)
-    {
-      if (!phasing.TryDequeue(out var phase))
-        break;
-
-      var q = new Queue<long>([phase, input]);
-
-      var amp = new IntcodeComputer(program);
-      amp.Execute(q);
-      output = amp.GetLastOutput;
-
-      input = output;
-    }
-
-    return output;
-  }
-
-  public void Execute(Queue<long> inputs)
-  {
-    _ip = 0;
-
-    while (_ip < _ram.Length && !_isHalted)
-    {
       var (modes, opCode) = GetNextOpCode();
       switch (opCode)
       {
         case 1:
-          Add(modes);
+          _actions.Add(modes);
           break;
 
         case 2:
-          Multiply(modes);
+          _actions.Multiply(modes);
           break;
 
         case 3:
-          if (!inputs.TryDequeue(out var input))
-            throw new ApplicationException("Expected an input, none found.");
-          Input(modes, input);
+          _isAwaitingInput = true;
           break;
 
         case 4:
-          ;
-          Output(modes);
+          _output.Push(_actions.Output(modes));
           break;
 
         case 5:
-          JumpIfTrue(modes);
+          _actions.JumpIfTrue(modes);
           break;
 
         case 6:
-          JumpIfFalse(modes);
+          _actions.JumpIfFalse(modes);
           break;
 
         case 7:
-          LessThan(modes);
+          _actions.LessThan(modes);
           break;
 
         case 8:
-          Equals(modes);
+          _actions.Equals(modes);
           break;
 
         case 99:
@@ -127,10 +71,15 @@ public class IntcodeComputer
 
   public long[] GetOutput()
   {
-    return _output.ToArray();
+    var output = new List<long>();
+    while (_output.Count > 0)
+    {
+      output.Insert(0, _output.Pop());
+    }
+    return output.ToArray();
   }
 
-  public long GetLastOutput => _lastOutput;
+  public long GetLastOutput => _output.Peek();
 
   public long ReadMemory(long address)
   {
@@ -146,167 +95,122 @@ public class IntcodeComputer
       _ram[address] = value;
   }
 
-  public void Reset()
+  public void SetInput(long value)
   {
-    Array.Copy(_rom, _ram, _rom.Length);
-    //_cache = [];
-    _ip = 0;
+    if (_isAwaitingInput)
+    {
+      _actions.Input(value);
+      _isAwaitingInput = false;
+    }
   }
 
   public bool IsHalted => _isHalted;
 
-  internal void Add(int[] modes)
-  {
-    Log("--- Add ---");
-    if (_ip + 4 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-    Debug.Assert(modes[2] == 0, $"For a valid addition call, modes[2] must be zero. Value:'{modes[2]}'");
+  public bool IsAwaitingInput => _isAwaitingInput;
 
-    _ip++;
-    var addr = _ram[_ip++];
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    addr = _ram[_ip++];
-    b = modes[1] == 0 ? _ram[addr] : addr;
-    w = _ram[_ip++];
-    Log($"Setting Ram[{w}] to {a + b}");
-    _ram[w] = a + b;
-    Log($"New ip:{_ip}");
-  }
+  public long Ip => _actions.CurrentIp;
 
-  internal void Multiply(int[] modes)
-  {
-    Log("--- Multiply ---");
-    if (_ip + 4 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-    Debug.Assert(modes[2] == 0, $"For a valid multiplication call, modes[2] must be zero. Value:'{modes[2]}'");
 
-    _ip++;
-    var addr = _ram[_ip++];
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    addr = _ram[_ip++];
-    b = modes[1] == 0 ? _ram[addr] : addr;
-    w = _ram[_ip++];
-    Log($"Setting Ram[{w}] to {a * b}");
-    _ram[w] = a * b;
-    Log($"New ip:{_ip}");
-  }
-
-  internal void Input(int[] modes, long input)
-  {
-    Log("--- Input ---");
-    if (_ip + 2 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-    Debug.Assert(modes[0] == 0, $"For a valid input call, modes[0] must be zero. Value:'{modes[0]}'");
-
-    _ip++;
-    var addr = _ram[_ip++];
-
-    //Console.WriteLine($"Saving input {input} to memory slot {addr}");
-    _ram[addr] = input;
-    Log($"New ip:{_ip}");
-  }
-
-  internal void Output(int[] modes)
-  {
-    Log("--- Output ---");
-    if (_ip + 2 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-
-    _ip++;
-    var addr = _ram[_ip++];
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    _output.Enqueue(a);
-    _lastOutput = a;
-
-    //Console.WriteLine($"Saving output {a}");
-    Log($"New ip:{_ip}");
-  }
-
-  internal void JumpIfTrue(int[] modes)
-  {
-    Log("--- Jump if true ---");
-    if (_ip + 3 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-
-    _ip++;
-    var addr = _ram[_ip++];
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    if (a > 0)
-    {
-      addr = _ram[_ip++];
-      b = modes[1] == 0 ? _ram[addr] : addr;
-      Log($"Setting ip to b:{b}");
-      _ip = (int)b;
-    }
-    else
-      _ip++;
-    Log($"New ip:{_ip}");
-  }
-
-  internal void JumpIfFalse(int[] modes)
-  {
-    Log("--- Jump if false ---");
-    if (_ip + 3 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-
-    _ip++;
-    var addr = _ram[_ip++];
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    if (a == 0)
-    {
-      addr = _ram[_ip++];
-      b = modes[1] == 0 ? _ram[addr] : addr;
-      Log($"Setting ip to b:{b}");
-      _ip = (int)b;
-    }
-    else
-      _ip++;
-    Log($"New ip:{_ip}");
-  }
-
-  internal void LessThan(int[] modes)
-  {
-    Log("--- Less Than ---");
-    if (_ip + 4 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-    Debug.Assert(modes[2] == 0, $"For a valid less than call, modes[2] must be zero. Value:'{modes[2]}'");
-
-    _ip++;
-    var addr = _ram[_ip++];
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    addr = _ram[_ip++];
-    b = modes[1] == 0 ? _ram[addr] : addr;
-    w = _ram[_ip++];
-    Log($"Setting Ram[{w}] to {a < b}");
-    _ram[w] = a < b ? 1 : 0;
-    Log($"New ip:{_ip}");
-  }
-
-  internal void Equals(int[] modes)
-  {
-    Log("--- Equals ---");
-    if (_ip + 4 >= _ram.Length)
-      throw new IndexOutOfRangeException("Instruction pointer beyond end of program");
-    Debug.Assert(modes[2] == 0, $"For a valid equality call, modes[2] must be zero. Value:'{modes[2]}'");
-
-    _ip++;
-    var addr = _ram[_ip++];
-
-    a = modes[0] == 0 ? _ram[addr] : addr;
-    addr = _ram[_ip++];
-
-    b = modes[1] == 0 ? _ram[addr] : addr;
-    w = _ram[_ip++];
-
-    Log($"Setting Ram[{w}] to {a == b}");
-    _ram[w] = a == b ? 1 : 0;
-    Log($"New ip:{_ip}");
-  }
-
+  // internal void Add(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   param[1] = GetParam(_ip + 2, _ram, modes[1]);
+  //   param[2] = _ram[_ip + 3];
+  //   _ram[param[2]] = param[0] + param[1];
+  //   _ip += 4;
+  // }
+  //
+  // internal void Multiply(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   param[1] = GetParam(_ip + 2, _ram, modes[1]);
+  //   param[2] = _ram[_ip + 3];
+  //   _ram[param[2]] = param[0] * param[1];
+  //   _ip += 4;
+  // }
+  //
+  // internal void Input(long input)
+  // {
+  //   Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = _ram[_ip + 1];
+  //   _ram[param[0]] = input;
+  //   _ip += 2;
+  // }
+  //
+  // internal void Output(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   _output.Push(param[0]);
+  //   _ip += 2;
+  // }
+  //
+  // internal void JumpIfTrue(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 3 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   param[1] = GetParam(_ip + 2, _ram, modes[1]);
+  //   if (param[0] > 0)
+  //     _ip = param[1];
+  //   else
+  //     _ip += 3;
+  // }
+  //
+  // internal void JumpIfFalse(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 3 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   param[1] = GetParam(_ip + 2, _ram, modes[1]);
+  //   if (param[0] == 0)
+  //     _ip = param[1];
+  //   else
+  //     _ip += 3;
+  // }
+  //
+  // internal void LessThan(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   param[1] = GetParam(_ip + 2, _ram, modes[1]);
+  //   param[2] = _ram[_ip + 3];
+  //   _ram[param[2]] = param[0] < param[1] ? 1 : 0;
+  //   _ip += 4;
+  // }
+  //
+  // internal void Equals(int[] modes)
+  // {
+  //   Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+  //
+  //   param[0] = GetParam(_ip + 1, _ram, modes[0]);
+  //   param[1] = GetParam(_ip + 2, _ram, modes[1]);
+  //   param[2] = _ram[_ip + 3];
+  //   _ram[param[2]] = param[0] == param[1] ? 1 : 0;
+  //   _ip += 4;
+  // }
+  //
+  // private static long GetParam(long ip, long[] ram, int mode)
+  // {
+  //   return mode switch
+  //   {
+  //     0 => ram[ram[ip]],
+  //     1 => ram[ip],
+  //     _ => throw new ApplicationException($"Unknown parameter mode. Value:'{mode}'")
+  //   };
+  // }
+  //
   private (int[] modes, int opcode) GetNextOpCode()
   {
     int[] modes = new int[10];
-    var instruction = (int)_ram[_ip];
+    var instruction = (int)_ram[Ip];
     var opcode = instruction % 100;
     instruction /= 100;
     int index = 0;
@@ -317,13 +221,5 @@ public class IntcodeComputer
     }
 
     return (modes, opcode);
-  }
-
-  private void Log(string message)
-  {
-    if (_isLoggingActive)
-    {
-      Console.WriteLine(message);
-    }
   }
 }
