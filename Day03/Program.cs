@@ -4,8 +4,8 @@ namespace Day03;
 
 internal static class Program
 {
-  private const long ExpectedPartOne = 0;
-  private const long ExpectedPartTwo = 0;
+  private const long ExpectedPartOne = 1431;
+  private const long ExpectedPartTwo = 48012;
 
   private static readonly Dictionary<char, (int dr, int dc)> Directions = new() { { 'U', (-1, 0) }, { 'R', (0, 1) }, { 'D', (1, 0) }, { 'L', (0, -1) } };
 
