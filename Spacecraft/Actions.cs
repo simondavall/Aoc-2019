@@ -18,8 +18,8 @@ internal class Actions
   {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
-    param[1] = GetParam(_ip + 2, _ram, modes[1]);
+    param[0] = GetParam(modes[0], _ip + 1);
+    param[1] = GetParam(modes[1], _ip + 2);
     param[2] = _ram[_ip + 3];
     _ram[param[2]] = param[0] + param[1];
     _ip += 4;
@@ -29,8 +29,8 @@ internal class Actions
   {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
-    param[1] = GetParam(_ip + 2, _ram, modes[1]);
+    param[0] = GetParam(modes[0], _ip + 1);
+    param[1] = GetParam(modes[1], _ip + 2);
     param[2] = _ram[_ip + 3];
     _ram[param[2]] = param[0] * param[1];
     _ip += 4;
@@ -49,7 +49,7 @@ internal class Actions
   {
     Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
+    param[0] = GetParam(modes[0], _ip + 1);
     _ip += 2;
 
     return param[0];
@@ -59,8 +59,8 @@ internal class Actions
   {
     Debug.Assert(_ip + 3 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
-    param[1] = GetParam(_ip + 2, _ram, modes[1]);
+    param[0] = GetParam(modes[0], _ip + 1);
+    param[1] = GetParam(modes[1], _ip + 2);
     if (param[0] > 0)
       _ip = param[1];
     else
@@ -71,8 +71,8 @@ internal class Actions
   {
     Debug.Assert(_ip + 3 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
-    param[1] = GetParam(_ip + 2, _ram, modes[1]);
+    param[0] = GetParam(modes[0], _ip + 1);
+    param[1] = GetParam(modes[1], _ip + 2);
     if (param[0] == 0)
       _ip = param[1];
     else
@@ -83,8 +83,8 @@ internal class Actions
   {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
-    param[1] = GetParam(_ip + 2, _ram, modes[1]);
+    param[0] = GetParam(modes[0], _ip + 1);
+    param[1] = GetParam(modes[1], _ip + 2);
     param[2] = _ram[_ip + 3];
     _ram[param[2]] = param[0] < param[1] ? 1 : 0;
     _ip += 4;
@@ -94,19 +94,19 @@ internal class Actions
   {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_ip + 1, _ram, modes[0]);
-    param[1] = GetParam(_ip + 2, _ram, modes[1]);
+    param[0] = GetParam(modes[0], _ip + 1);
+    param[1] = GetParam(modes[1], _ip + 2);
     param[2] = _ram[_ip + 3];
     _ram[param[2]] = param[0] == param[1] ? 1 : 0;
     _ip += 4;
   }
 
-  private static long GetParam(long ip, long[] ram, int mode)
+  private long GetParam(int mode, long ip)
   {
     return mode switch
     {
-      0 => ram[ram[ip]],
-      1 => ram[ip],
+      0 => _ram[_ram[ip]],
+      1 => _ram[ip],
       _ => throw new ApplicationException($"Unknown parameter mode. Value:'{mode}'")
     };
   }
