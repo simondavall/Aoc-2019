@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Spacecraft;
 
@@ -8,7 +7,7 @@ public class IntcodeComputer
   private readonly long[] _ram = [];
   private bool _isHalted = false;
   private bool _isAwaitingInput = false;
-  private readonly Stack<long> _output = [];
+  private readonly List<long> _output = [];
   private readonly Actions _actions;
 
   public IntcodeComputer(long[] program)
@@ -40,7 +39,7 @@ public class IntcodeComputer
           break;
 
         case 4:
-          _output.Push(_actions.Output(modes));
+          _output.Add(_actions.Output(modes));
           break;
 
         case 5:
@@ -69,16 +68,6 @@ public class IntcodeComputer
     }
   }
 
-  public long[] GetOutput()
-  {
-    var output = new List<long>();
-    while (_output.Count > 0)
-    {
-      output.Insert(0, _output.Pop());
-    }
-    return output.ToArray();
-  }
-
   public long ReadMemory(long address)
   {
     if (address < 0 || address >= _ram.Length)
@@ -102,7 +91,9 @@ public class IntcodeComputer
     }
   }
 
-  public long GetLastOutput => _output.Count > 0 ? _output.Peek() : 0;
+  public long[] FullOutput => _output.ToArray();
+
+  public long GetLastOutput => _output.Count > 0 ? _output.Last() : 0;
 
   public bool IsHalted => _isHalted;
 
