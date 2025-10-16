@@ -35,13 +35,10 @@ internal static class Program
       }
       computer.Execute();
     }
- 
-    var diagnosticCode = computer.GetLastOutput;
 
-    var fullOutput = computer.GetOutput();
-    Console.WriteLine($"Full output: {fullOutput.Print()}");
+    Console.WriteLine($"Full output: {computer.FullOutput.Print()}");
     
-    return diagnosticCode;
+    return computer.GetLastOutput;
   }
 
   private static long PartTwo()
