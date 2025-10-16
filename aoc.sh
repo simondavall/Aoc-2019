@@ -4,5 +4,5 @@ cd Aoc
 
 dotnet build -c Release
 
-./bin/Debug/net9.0/Aoc
+./bin/Release/net9.0/Aoc
 

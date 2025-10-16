@@ -17,6 +17,8 @@ internal static class Aoc
         var stopwatch = Stopwatch.StartNew();
         
         var result = 0;
+        var count = 0;
+        List<int> failed = [];
         
         foreach (var assemblyName in Enumerable.Range(1, 25).ToString("Day00"))
         {
@@ -29,9 +31,16 @@ internal static class Aoc
             var main = type.GetMethod("Main");
             var current = (int)main?.Invoke(null, [new[]{$"../{assemblyName}/input{assemblyName}.txt"}])!;
             
-            Console.WriteLine(current != 0 ? "Oops, Failed!!!" : " Great Success!!!");
+            count++;
+            if(current != 0){
+              failed.Add(count);
+              Console.WriteLine("Oops. Failed!!!");
+            }
+            else {
+              Console.WriteLine("Great Success!!!");
+
+            }
             Console.WriteLine();
-            result += current;
         }
 
         Console.WriteLine();
@@ -40,9 +49,9 @@ internal static class Aoc
         Console.WriteLine($"All solutions ran in (ms): {stopwatch.ElapsedMilliseconds}");
         
         if (result > 0)
-            Console.Write($"Incorrect results found for {result} solutions.");
+            Console.Write($"Incorrect results found for {failed.Count}/{count} solutions.");
         else
-            Console.Write("All solutions passed successfully!.");
+            Console.Write($"{count}/{count} solutions passed successfully!.");
     }
 
     private static IEnumerable<string> ToString(this IEnumerable<int> list, string format)
