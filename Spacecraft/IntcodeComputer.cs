@@ -5,6 +5,7 @@ namespace Spacecraft;
 public class IntcodeComputer
 {
   private long _ip;
+  private long _offset;
   private const int MAX_RAM = 10_000;
   private readonly long[] _ram = [];
   private bool _isHalted = false;
@@ -17,6 +18,7 @@ public class IntcodeComputer
   {
     Debug.Assert(program.Length < MAX_RAM, $"Out Of Memory. Program is too large, get some more RAM. Size:{program.Length}");
     _ip = 0;
+    _offset = 0;
     _ram = new long[MAX_RAM];
     Array.Copy(program, _ram, program.Length);
   }
@@ -60,6 +62,10 @@ public class IntcodeComputer
 
         case 8:
           Equals();
+          break;
+
+        case 9:
+          AdjustRelativeBaseOffset();
           break;
 
         case 99:
@@ -147,7 +153,12 @@ public class IntcodeComputer
   {
     Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = _ram[_ip + 1];
+    param[0] = _paramMode[0] switch {
+      0 => _ram[_ip + 1],
+      2 => _ram[_ip + 1] + _offset,
+      _ => throw new ApplicationException($"Invalid parameter mode for Input: {_paramMode[0]}")
+    };
+
     _ram[param[0]] = input;
     _ip += 2;
   }
@@ -208,12 +219,22 @@ public class IntcodeComputer
     _ip += 4;
   }
 
+  private void AdjustRelativeBaseOffset()
+  {
+    Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
+
+    param[0] = GetParam(_paramMode[0], _ip + 1);
+    _offset += param[0];
+    _ip += 2;
+  }
+
   private long GetParam(int mode, long ip)
   {
     return mode switch
     {
       0 => _ram[_ram[ip]],
       1 => _ram[ip],
+      2 => _ram[_ram[ip] + _offset],
       _ => throw new ApplicationException($"Unknown parameter mode. Value:'{mode}'")
     };
   }
