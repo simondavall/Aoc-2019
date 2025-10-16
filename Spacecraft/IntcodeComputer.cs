@@ -4,6 +4,7 @@ namespace Spacecraft;
 
 public class IntcodeComputer
 {
+  private const int MAX_RAM = 10_000;
   private readonly long[] _ram = [];
   private bool _isHalted = false;
   private bool _isAwaitingInput = false;
@@ -12,7 +13,8 @@ public class IntcodeComputer
 
   public IntcodeComputer(long[] program)
   {
-    _ram = new long[program.Length];
+    Debug.Assert(program.Length < MAX_RAM, $"Out Of Memory. Program is too large, get some more RAM. Size:{program.Length}");
+    _ram = new long[MAX_RAM];
     Array.Copy(program, _ram, program.Length);
     _actions = new Actions(_ram);
   }
