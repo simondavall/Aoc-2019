@@ -13,7 +13,6 @@ public class IntcodeComputer
   private readonly List<long> _output = [];
   private readonly long[] param = new long[3];
   private int[] _paramMode = [];
-  private long counter = 0;
 
   public IntcodeComputer(long[] program)
   {
@@ -29,8 +28,6 @@ public class IntcodeComputer
     while (!_isAwaitingInput && !_isHalted)
     {
       Debug.Assert(_ip < _ram.Length && _ip >= 0, $"Instruction pointer is out of bounds. Terminaling program. Ip:{_ip}");
-
-      Console.WriteLine($"State: ip:{_ip}, Counter:{counter++} ");
 
       var opCode = GetNextOpCode();
       switch (opCode)
@@ -137,7 +134,6 @@ public class IntcodeComputer
     param[0] = GetParam(_paramMode[0], _ip + 1);
     param[1] = GetParam(_paramMode[1], _ip + 2);
     param[2] = GetWriteParam(_paramMode[2], _ip + 3);
-    Console.Write($"Add: Save to ip:{param[2]}");
     _ram[param[2]] = param[0] + param[1];
     _ip += 4;
   }

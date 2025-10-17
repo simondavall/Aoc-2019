@@ -7,7 +7,7 @@ namespace Day09;
 internal static class Program
 {
   private const long ExpectedPartOne = 3638931938;
-  private const long ExpectedPartTwo = 0;
+  private const long ExpectedPartTwo = 86025;
 
   public static int Main(string[] args)
   {
@@ -18,7 +18,7 @@ internal static class Program
     var resultPartOne = PartOne(input);
     PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var resultPartTwo = PartTwo();
+    var resultPartTwo = PartTwo(input);
     PrintResult("2", resultPartTwo.ToString(), stopwatch);
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
@@ -28,8 +28,10 @@ internal static class Program
   {
     var computer = new IntcodeComputer(program);
 
-    while (!computer.IsHalted){
-      if (computer.IsAwaitingInput){
+    while (!computer.IsHalted)
+    {
+      if (computer.IsAwaitingInput)
+      {
         computer.SetInput(1);
       }
       computer.Execute();
@@ -40,11 +42,22 @@ internal static class Program
     return computer.GetLastOutput;
   }
 
-  private static long PartTwo()
+  private static long PartTwo(long[] program)
   {
-    long tally = 0;
+    var computer = new IntcodeComputer(program);
 
-    return tally;
+    while (!computer.IsHalted)
+    {
+      if (computer.IsAwaitingInput)
+      {
+        computer.SetInput(2);
+      }
+      computer.Execute();
+    }
+
+    Console.WriteLine($"Full output: {computer.FullOutput.Print(30)}");
+
+    return computer.GetLastOutput;
   }
 
   private static long[] GetData(string[] args)
@@ -60,7 +73,8 @@ internal static class Program
   }
 
 
-  private static void PrintTitle(){
+  private static void PrintTitle()
+  {
     Console.WriteLine("# Advent of Code 2019 #");
     Console.WriteLine("## Day 9: Sensor Boost ##");
     Console.WriteLine("https://adventofcode.com/2019/day/9");
