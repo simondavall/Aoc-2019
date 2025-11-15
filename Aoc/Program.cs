@@ -29,7 +29,7 @@ internal static class Aoc
                                                            // will not have been started yet. So skip failed finds.
             var type = assembly.GetTypes().First(x => x.Name.Contains("Program"));
             var main = type.GetMethod("Main");
-            var current = (int)main?.Invoke(null, [new[]{$"../{assemblyName}/input{assemblyName}.txt"}])!;
+            var current = (int)main?.Invoke(null, [new[]{$"../{assemblyName}/input.txt"}])!;
             
             count++;
             if(current != 0){

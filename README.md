@@ -22,4 +22,4 @@ dotnet build -c Release
 ```bash
 ./bin/Release/net10.0/Day01 <filename>
 ```
-Replace <filename> with either sample.txt or input.txt
+Replace \<filename\> with either sample.txt or input.txt
