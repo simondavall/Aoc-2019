@@ -10,15 +10,22 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    long resultPartOne = -1;
+    long resultPartTwo = -1;
+
     PrintTitle();
-    var input = GetData(args).ToIntArray();
-    var stopwatch = Stopwatch.StartNew();
+    foreach (var filePath in args)
+    {
+      Console.WriteLine($"\nFile: {filePath}\n");
+      int[] input = GetData(filePath).ToIntArray();
+      var stopwatch = Stopwatch.StartNew();
 
-    var resultPartOne = PartOne(input);
-    PrintResult("1", resultPartOne.ToString(), stopwatch);
+      resultPartOne = PartOne(input);
+      PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var resultPartTwo = PartTwo(input);
-    PrintResult("2", resultPartTwo.ToString(), stopwatch);
+      resultPartTwo = PartTwo(input);
+      PrintResult("2", resultPartTwo.ToString(), stopwatch);
+    }
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
@@ -55,34 +62,29 @@ internal static class Program
     return tally;
   }
 
-  private static string[] GetData(string[] args)
+  private static string[] GetData(string filePath)
   {
-    var filename = "sample.txt";
-    if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
-      filename = args[0];
+    if (string.IsNullOrWhiteSpace(filePath)){
+      filePath = "sample.txt";
+    }
 
-    using var streamReader = new StreamReader(filename);
+    using var streamReader = new StreamReader(filePath);
     var data = streamReader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
     return data;
   }
-
 
   private static void PrintTitle()
   {
     Console.WriteLine("# Advent of Code 2019 #");
     Console.WriteLine("## Day 1: The Tyranny of the Rocket Equation ##");
     Console.WriteLine("https://adventofcode.com/2019/day/1");
-    Console.WriteLine();
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
   {
     sw.Stop();
-    Console.WriteLine($"Part {partNo}");
-    Console.WriteLine($"Result: {result}");
-    Console.WriteLine($"Time elapsed (ms): {sw.Elapsed.TotalMilliseconds}");
-    Console.WriteLine();
+    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
   }
 }
