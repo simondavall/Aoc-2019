@@ -1,12 +1,9 @@
+Time Elapsed 00:00:01.88
 # Advent of Code 2019 #
 ## Day 2: 1202 Program Alarm ##
 https://adventofcode.com/2019/day/2
 
-Part 1\
-Result: 6568671\
-Time elapsed (ms): 1.2339
+File: input.txt
 
-Part 2\
-Result: 3951\
-Time elapsed (ms): 1.9079
-
+Part 1 Result: 6568671 in 2.2267ms
+Part 2 Result: 3951 in 38.6643ms
