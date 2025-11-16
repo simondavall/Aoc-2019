@@ -2,22 +2,14 @@
 ## Day 5: Sunny with a Chance of Asteroids ##
 https://adventofcode.com/2019/day/5
 
-Program output:0
-Program output:0
-Program output:0
-Program output:0
-Program output:0
-Program output:0
-Program output:0
-Program output:0
-Program output:0
-Program output:10987514
+File: sample.txt
 
-Part 1\
-Result: 10987514\
-Time elapsed (ms): 4.0018
-Program output:14195011
+Full output: [999]
+Part 1 Result: 999 in 5.375ms
+Part 2 Result: 999 in 0.1341ms
 
-Part 2\
-Result: 14195011\
-Time elapsed (ms): 1.6375
+File: input.txt
+
+Full output: [0, 0, 0, 0, 0, 0, 0, 0, 0, 10987514]
+Part 1 Result: 10987514 in 1.0466ms
+Part 2 Result: 14195011 in 0.0636ms

@@ -8,25 +8,33 @@ internal static class Program
 {
   private const long ExpectedPartOne = 10987514;
   private const long ExpectedPartTwo = 14195011;
-  private static long[] _program = [];
+
   public static int Main(string[] args)
   {
+    long resultPartOne = -1;
+    long resultPartTwo = -1;
+
     PrintTitle();
-    SetData(args);
-    var stopwatch = Stopwatch.StartNew();
+    foreach (var filePath in args)
+    {
+      Console.WriteLine($"\nFile: {filePath}\n");
+      long[] program = GetData(filePath);
+      var stopwatch = Stopwatch.StartNew();
 
-    var resultPartOne = PartOne();
-    PrintResult("1", resultPartOne.ToString(), stopwatch);
+      resultPartOne = PartOne(program);
+      PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var resultPartTwo = PartTwo();
-    PrintResult("2", resultPartTwo.ToString(), stopwatch);
+      resultPartTwo = PartTwo(program);
+      PrintResult("2", resultPartTwo.ToString(), stopwatch);
+    }
 
+    Console.WriteLine();
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
-  private static long PartOne()
+  private static long PartOne(long[] program)
   {
-    var computer = new IntcodeComputer(_program);
+    var computer = new IntcodeComputer(program);
     while (!computer.IsHalted)
     {
       if (computer.IsAwaitingInput)
@@ -41,9 +49,9 @@ internal static class Program
     return computer.GetLastOutput;
   }
 
-  private static long PartTwo()
+  private static long PartTwo(long[] program)
   {
-    var computer = new IntcodeComputer(_program);
+    var computer = new IntcodeComputer(program);
     while (!computer.IsHalted)
     {
       if (computer.IsAwaitingInput)
@@ -56,32 +64,32 @@ internal static class Program
     return computer.GetLastOutput;
   }
 
-  private static void SetData(string[] args)
+  private static long[] GetData(string filePath)
   {
-    var filename = "sample.txt";
-    if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
-      filename = args[0];
+    if (string.IsNullOrWhiteSpace(filePath)){
+      filePath = "sample.txt";
+    }
 
-    using var streamReader = new StreamReader(filename);
-    _program = streamReader.ReadToEnd().Split([',', '\n'], StringSplitOptions.RemoveEmptyEntries).ToLongArray();
+    using var streamReader = new StreamReader(filePath);
+    long[] data = streamReader
+      .ReadToEnd()
+      .Split([',', '\n'], StringSplitOptions.RemoveEmptyEntries)
+      .ToLongArray();
+
+    return data;
   }
-
 
   private static void PrintTitle()
   {
     Console.WriteLine("# Advent of Code 2019 #");
     Console.WriteLine("## Day 5: Sunny with a Chance of Asteroids ##");
     Console.WriteLine("https://adventofcode.com/2019/day/5");
-    Console.WriteLine();
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
   {
     sw.Stop();
-    Console.WriteLine();
-    Console.WriteLine($"Part {partNo}\\");
-    Console.WriteLine($"Result: {result}\\");
-    Console.WriteLine($"Time elapsed (ms): {sw.Elapsed.TotalMilliseconds}");
+    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
   }
 }
