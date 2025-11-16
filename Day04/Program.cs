@@ -9,7 +9,9 @@ internal static class Program
 
   public static int Main(string[] args)
   {
-    PrintTitle();
+    Console.WriteLine("\n## Day 4: Secure Container ##");
+    Console.WriteLine("https://adventofcode.com/2019/day/4");
+ 
     var stopwatch = Stopwatch.StartNew();
     Console.WriteLine();
 
@@ -126,13 +128,6 @@ internal static class Program
     if (n < 100000000) return 8;
     if (n < 1000000000) return 9;
     return 10;
-  }
-
-  private static void PrintTitle()
-  {
-    Console.WriteLine("# Advent of Code 2019 #");
-    Console.WriteLine("## Day 4: Secure Container ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/4");
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
