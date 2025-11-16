@@ -11,10 +11,12 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    Console.WriteLine("\n## Day 3: Crossed Wires ##");
+    Console.WriteLine("https://adventofcode.com/2019/day/3");
+ 
     long resultPartOne = -1;
     long resultPartTwo = -1;
 
-    PrintTitle();
     foreach (var filePath in args)
     {
       Console.WriteLine($"\nFile: {filePath}\n");
@@ -133,13 +135,6 @@ internal static class Program
     wires[1] = [.. data[1].Split(',', StringSplitOptions.RemoveEmptyEntries).Select(d => (d[0], int.Parse(d[1..])))];
 
     return wires;
-  }
-
-  private static void PrintTitle()
-  {
-    Console.WriteLine("# Advent of Code 2019 #");
-    Console.WriteLine("## Day 3: Crossed Wires ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/3");
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
