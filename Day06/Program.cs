@@ -9,15 +9,22 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    long resultPartOne = -1;
+    long resultPartTwo = -1;
+
     PrintTitle();
-    var input = GetData(args);
-    var stopwatch = Stopwatch.StartNew();
+    foreach (var filePath in args)
+    {
+      Console.WriteLine($"\nFile: {filePath}\n");
+      Node input = GetData(filePath);
+      var stopwatch = Stopwatch.StartNew();
 
-    var resultPartOne = PartOne(input);
-    PrintResult("1", resultPartOne.ToString(), stopwatch);
+      resultPartOne = PartOne(input);
+      PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var resultPartTwo = PartTwo(input);
-    PrintResult("2", resultPartTwo.ToString(), stopwatch);
+      resultPartTwo = PartTwo(input);
+      PrintResult("2", resultPartTwo.ToString(), stopwatch);
+    }
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
@@ -92,13 +99,13 @@ internal static class Program
     return tally;
   }
 
-  private static Node GetData(string[] args)
+  private static Node GetData(string filePath)
   {
-    var filename = "sample2.txt";
-    if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
-      filename = args[0];
+    if (string.IsNullOrWhiteSpace(filePath)){
+      filePath = "sample.txt";
+    }
 
-    using var streamReader = new StreamReader(filename);
+    using var streamReader = new StreamReader(filePath);
     var data = streamReader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
     Node rootNode = null!;
@@ -136,16 +143,12 @@ internal static class Program
     Console.WriteLine("# Advent of Code 2019 #");
     Console.WriteLine("## Day 6: Universal Orbit Map ##");
     Console.WriteLine("https://adventofcode.com/2019/day/6");
-    Console.WriteLine();
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
   {
     sw.Stop();
-    Console.WriteLine($"Part {partNo}\\");
-    Console.WriteLine($"Result: {result}\\");
-    Console.WriteLine($"Time elapsed (ms): {sw.Elapsed.TotalMilliseconds}");
-    Console.WriteLine();
+    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
   }
 
