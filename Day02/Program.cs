@@ -11,24 +11,29 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    long resultPartOne = -1;
+    long resultPartTwo = -1;
+
     PrintTitle();
+    foreach (var filePath in args)
+    {
+      Console.WriteLine($"\nFile: {filePath}\n");
+      long[] input = GetData(filePath).ToLongArray();
+      var stopwatch = Stopwatch.StartNew();
 
-    var program = GetData(args);
+      resultPartOne = PartOne(input);
+      PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var stopwatch = Stopwatch.StartNew();
-
-    var resultPartOne = PartOne(program);
-    PrintResult("1", resultPartOne.ToString(), stopwatch);
-
-    var resultPartTwo = PartTwo(program);
-    PrintResult("2", resultPartTwo.ToString(), stopwatch);
+      resultPartTwo = PartTwo(input);
+      PrintResult("2", resultPartTwo.ToString(), stopwatch);
+    }
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
   private static long PartOne(long[] program)
   {
-    var computer = new IntcodeComputer(program);
+    var computer = new  IntcodeComputer(program);
     computer.SetMemory(1, 12);
     computer.SetMemory(2, 2);
     while(!computer.IsHalted){
@@ -75,14 +80,16 @@ internal static class Program
     return result;
   }
 
-  private static long[] GetData(string[] args)
+  private static string[] GetData(string filePath)
   {
-    var filename = "sample.txt";
-    if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
-      filename = args[0];
+    if (string.IsNullOrWhiteSpace(filePath)){
+      filePath = "sample.txt";
+    }
 
-    using var streamReader = new StreamReader(filename);
-    var data = streamReader.ReadToEnd().Split([',', '\n'], StringSplitOptions.RemoveEmptyEntries).ToLongArray();
+    using var streamReader = new StreamReader(filePath);
+    var data = streamReader
+      .ReadToEnd()
+      .Split(',', StringSplitOptions.RemoveEmptyEntries);
 
     return data;
   }
@@ -92,16 +99,12 @@ internal static class Program
     Console.WriteLine("# Advent of Code 2019 #");
     Console.WriteLine("## Day 2: 1202 Program Alarm ##");
     Console.WriteLine("https://adventofcode.com/2019/day/2");
-    Console.WriteLine();
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
   {
     sw.Stop();
-    Console.WriteLine($"Part {partNo}\\");
-    Console.WriteLine($"Result: {result}\\");
-    Console.WriteLine($"Time elapsed (ms): {sw.Elapsed.TotalMilliseconds}");
-    Console.WriteLine();
+    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
   }
 }
