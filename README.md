@@ -28,7 +28,7 @@ File: ../Day01/input.txt
 
 Part 1 Result: 3226822 in 0.4119ms\
 Part 2 Result: 4837367 in 0.1795ms\
-Great Success!!!\
+Great Success!!!
 
 ## Day 2: 1202 Program Alarm ##
 https://adventofcode.com/2019/day/2
@@ -37,7 +37,7 @@ File: ../Day02/input.txt
 
 Part 1 Result: 6568671 in 2.0825ms\
 Part 2 Result: 3951 in 41.1468ms\
-Great Success!!!\
+Great Success!!!
 
 ## Day 3: Crossed Wires ##
 https://adventofcode.com/2019/day/3
@@ -46,14 +46,14 @@ File: ../Day03/input.txt
 
 Part 1 Result: 1431 in 37.2177ms\
 Part 2 Result: 48012 in 43.6715ms\
-Great Success!!!\
+Great Success!!!
 
 ## Day 4: Secure Container ##
 https://adventofcode.com/2019/day/4
 
 Part 1 Result: 2050 in 21.5763ms\
 Part 2 Result: 1390 in 66.4469ms\
-Great Success!!!\
+Great Success!!!
 
 ## Day 5: Sunny with a Chance of Asteroids ##
 https://adventofcode.com/2019/day/5
