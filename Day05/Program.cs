@@ -11,10 +11,12 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    Console.WriteLine("\n## Day 5: Sunny with a Chance of Asteroids ##");
+    Console.WriteLine("https://adventofcode.com/2019/day/5");
+ 
     long resultPartOne = -1;
     long resultPartTwo = -1;
 
-    PrintTitle();
     foreach (var filePath in args)
     {
       Console.WriteLine($"\nFile: {filePath}\n");
@@ -77,13 +79,6 @@ internal static class Program
       .ToLongArray();
 
     return data;
-  }
-
-  private static void PrintTitle()
-  {
-    Console.WriteLine("# Advent of Code 2019 #");
-    Console.WriteLine("## Day 5: Sunny with a Chance of Asteroids ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/5");
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
