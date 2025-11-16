@@ -9,17 +9,36 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    long resultPartOne = -1;
+    long resultPartTwo = -1;
+
     PrintTitle();
-    var input = GetData(args);
-    var stopwatch = Stopwatch.StartNew();
+    foreach (var filePath in args)
+    {
+      Console.WriteLine($"\nFile: {filePath}\n");
+      string input = GetData(filePath);
+      var stopwatch = Stopwatch.StartNew();
 
-    var resultPartOne = PartOne(input);
-    PrintResult("1", resultPartOne.ToString(), stopwatch);
+      resultPartOne = PartOne(input);
+      PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-    var resultPartTwo = PartTwo(input);
-    PrintResult("2", resultPartTwo.ToString(), stopwatch);
+      resultPartTwo = PartTwo(input);
+      PrintResult("2", resultPartTwo.ToString(), stopwatch);
+    }
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
+ 
+    // PrintTitle();
+    // var input = GetData(args);
+    // var stopwatch = Stopwatch.StartNew();
+    //
+    // var resultPartOne = PartOne(input);
+    // PrintResult("1", resultPartOne.ToString(), stopwatch);
+    //
+    // var resultPartTwo = PartTwo(input);
+    // PrintResult("2", resultPartTwo.ToString(), stopwatch);
+    //
+    // return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
   private static long PartOne(ReadOnlySpan<char> image)
@@ -67,6 +86,7 @@ internal static class Program
   }
 
   private static void PrintImage(int width, int height, char[] image){
+    Console.WriteLine();
     for(int i = 0; i < height; i++){
       for (int j = 0; j < width; j++){
         Console.Write(image[i * width + j] == '1' ? "##" : "  "  );
@@ -76,34 +96,29 @@ internal static class Program
     Console.WriteLine();
   }
 
-  private static string GetData(string[] args)
+  private static string GetData(string filePath)
   {
-    var filename = "Day08/inputDay08.txt";
-    if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
-      filename = args[0];
+    if (string.IsNullOrWhiteSpace(filePath)){
+      filePath = "sample.txt";
+    }
 
-    using var streamReader = new StreamReader(filename);
+    using var streamReader = new StreamReader(filePath);
     var data = streamReader.ReadToEnd();
 
     return data;
   }
 
-
   private static void PrintTitle()
   {
     Console.WriteLine("# Advent of Code 2019 #");
-    Console.WriteLine("## Day 1: The Tyranny of the Rocket Equation ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/1");
-    Console.WriteLine();
+    Console.WriteLine("## Day 8: Space Image Format ##");
+    Console.WriteLine("https://adventofcode.com/2019/day/8");
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
   {
     sw.Stop();
-    Console.WriteLine($"Part {partNo}\\");
-    Console.WriteLine($"Result: {result}\\");
-    Console.WriteLine($"Time elapsed (ms): {sw.Elapsed.TotalMilliseconds}");
-    Console.WriteLine();
+    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
   }
 }
