@@ -9,10 +9,12 @@ internal static class Program
 
   public static int Main(string[] args)
   {
+    Console.WriteLine("\n## Day 8: Space Image Format ##");
+    Console.WriteLine("https://adventofcode.com/2019/day/8");
+ 
     long resultPartOne = -1;
     long resultPartTwo = -1;
 
-    PrintTitle();
     foreach (var filePath in args)
     {
       Console.WriteLine($"\nFile: {filePath}\n");
@@ -106,13 +108,6 @@ internal static class Program
     var data = streamReader.ReadToEnd();
 
     return data;
-  }
-
-  private static void PrintTitle()
-  {
-    Console.WriteLine("# Advent of Code 2019 #");
-    Console.WriteLine("## Day 8: Space Image Format ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/8");
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
