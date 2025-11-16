@@ -11,6 +11,7 @@ internal static class Program
   {
     PrintTitle();
     var stopwatch = Stopwatch.StartNew();
+    Console.WriteLine();
 
     var resultPartOne = PartOne();
     PrintResult("1", resultPartOne.ToString(), stopwatch);
@@ -84,12 +85,6 @@ internal static class Program
           && cur1 != workingArr[i - 1]
           && cur1 != workingArr[i + 2])
         return true;
-
-    //   var patch = workingArr[(i - 1) .. (i + 3)];
-    //   var cur = patch[1];
-    //   if (cur == patch[2] && cur != patch[0] && cur != patch[3]){
-    //     return true;
-    //   }
     }
     return false;
   }
@@ -138,16 +133,12 @@ internal static class Program
     Console.WriteLine("# Advent of Code 2019 #");
     Console.WriteLine("## Day 4: Secure Container ##");
     Console.WriteLine("https://adventofcode.com/2019/day/4");
-    Console.WriteLine();
   }
 
   private static void PrintResult(string partNo, string result, Stopwatch sw)
   {
     sw.Stop();
-    Console.WriteLine($"Part {partNo}\\");
-    Console.WriteLine($"Result: {result}\\");
-    Console.WriteLine($"Time elapsed (ms): {sw.Elapsed.TotalMilliseconds}");
-    Console.WriteLine();
+    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
   }
 }
