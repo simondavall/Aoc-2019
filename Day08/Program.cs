@@ -29,18 +29,6 @@ internal static class Program
     }
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
- 
-    // PrintTitle();
-    // var input = GetData(args);
-    // var stopwatch = Stopwatch.StartNew();
-    //
-    // var resultPartOne = PartOne(input);
-    // PrintResult("1", resultPartOne.ToString(), stopwatch);
-    //
-    // var resultPartTwo = PartTwo(input);
-    // PrintResult("2", resultPartTwo.ToString(), stopwatch);
-    //
-    // return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
   private static long PartOne(ReadOnlySpan<char> image)
