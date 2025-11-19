@@ -78,9 +78,9 @@ internal static class Program
       foreach (var (x, y) in currentTargets)
       {
         vapourizedCount += 1;
-        var (lcd, asteroid) = sightLines[(x, y)];
         if (vapourizedCount == 200)
         {
+          var (_, asteroid) = sightLines[(x, y)];
           return asteroid.X * 100 + asteroid.Y;
         }
       }
@@ -119,7 +119,6 @@ internal static class Program
       return Math.Abs(a);
     }
   }
-
 
   internal class RotationalComparer : IComparer<(int x, int y)>
   {
