@@ -5,5 +5,5 @@ https://adventofcode.com/2019/day/2
 
 File: input.txt
 
-Part 1 Result: 6568671 in 2.2267ms
+Part 1 Result: 6568671 in 2.2267ms\
 Part 2 Result: 3951 in 38.6643ms
