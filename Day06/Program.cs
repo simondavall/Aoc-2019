@@ -70,9 +70,8 @@ internal static class Program {
     var q2 = new Queue<(Node node, int count)>([(you, 0)]);
     while (true) {
       if (!q2.TryDequeue(out var cur)) {
-        if (parent.node?.Parent is null) {
-          Debug.Fail("Unable to locate the Santa node (SAN) in the node tree.");
-        }
+        if (parent.node?.Parent is null)
+          throw new ApplicationException("Unable to locate the Santa node (SAN) in the node tree.");
 
         cur = (parent.node, parent.count);
         parent = (parent.node.Parent, parent.count + 1);
