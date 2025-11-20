@@ -34,7 +34,7 @@ internal static class Program {
     var computer = new IntcodeComputer(program);
     while (!computer.IsHalted) {
       computer.Execute();
-   }
+    }
     long tally = 0;
     var output = computer.FullOutput;
     for (var i = 2; i < output.Length; i += 3) {
@@ -52,22 +52,22 @@ internal static class Program {
 
     var idx = 0;
     long currentScore = 0;
-    long ball = 0, paddle = 0;
+    long ball_position = 0, paddle = 0;
 
     while (!computer.IsHalted) {
       if (computer.IsAwaitingInput) {
-        var move = ball.CompareTo(paddle);
+        var move = ball_position.CompareTo(paddle);
         computer.SetInput(move);
       }
       computer.Execute();
-       var output = computer.FullOutput;
-      for (var i = idx; i < output.Length; i += 3){
-        if (output[i] == -1 && output[i + 1] == 0){
+      var output = computer.FullOutput;
+      for (var i = idx; i < output.Length; i += 3) {
+        if (output[i] == -1 && output[i + 1] == 0) {
           currentScore = output[i + 2];
         }
-        if (output[i + 2] == 4){
-          ball = output[i];
-        } else if (output[i + 2] == 3){
+        if (output[i + 2] == 4) {
+          ball_position = output[i];
+        } else if (output[i + 2] == 3) {
           paddle = output[i];
         }
       }
