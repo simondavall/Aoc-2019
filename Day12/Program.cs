@@ -1,33 +1,11 @@
-﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
-
-namespace Day12;
+﻿namespace Day12;
 
 internal static partial class Program {
+  private const string Title = "\n## Day 12: The N-Body Problem ##";
+  private const string AdventOfCodde = "https://adventofcode.com/2019/day/12";
+
   private const long ExpectedPartOne = 7471;
   private const long ExpectedPartTwo = 376243355967784;
-
-  public static int Main(string[] args) {
-    Console.WriteLine("\n## Day 12: The N-Body Problem ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/12");
-
-    long resultPartOne = -1;
-    long resultPartTwo = -1;
-
-    foreach (var filePath in args) {
-      Console.WriteLine($"\nFile: {filePath}\n");
-      Moon[] input = GetData(filePath);
-      var stopwatch = Stopwatch.StartNew();
-
-      resultPartOne = PartOne(input);
-      PrintResult("1", resultPartOne.ToString(), stopwatch);
-
-      resultPartTwo = PartTwo(input);
-      PrintResult("2", resultPartTwo.ToString(), stopwatch);
-    }
-
-    return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
-  }
 
   // This holds the number of steps to take for each file imported.
   private static Queue<int> _totalSteps = new Queue<int>([10, 100, 1000]);
@@ -144,13 +122,6 @@ internal static partial class Program {
     return Math.Abs(a);
   }
 
-  private static void PrintStatus(Moon[] moons, int steps) {
-    Console.WriteLine($"After {steps} steps:");
-    foreach (var moon in moons) {
-      Console.WriteLine(moon.ToString());
-    }
-  }
-
   private class Moon(int x, int y, int z) {
     internal (int x, int y, int z) position = (x, y, z);
     internal (int dx, int dy, int dz) velocity = (0, 0, 0);
@@ -165,7 +136,6 @@ internal static partial class Program {
       return position.z == other.position.z && velocity.dz == other.velocity.dz;
     }
 
-
     internal Moon Copy() {
       var newMoon = new Moon(position.x, position.y, position.z);
       newMoon.velocity.dx = velocity.dx;
@@ -176,39 +146,5 @@ internal static partial class Program {
     public override string ToString() {
       return $"position: {position}, velocity:{velocity}";
     }
-  }
-
-  private static Moon[] GetData(string filePath) {
-    if (string.IsNullOrWhiteSpace(filePath)) {
-      filePath = "sample.txt";
-    }
-
-    using var streamReader = new StreamReader(filePath);
-    var data = streamReader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
-    List<Moon> moons = [];
-    foreach (var line in data) {
-      var m = MyRegex.InputRegex().Matches(line);
-      if (m.Count != 3) {
-        throw new ApplicationException($"Should find 3 input values. Fount:{m.Count}");
-      }
-      var x = int.Parse(m[0].Value);
-      var y = int.Parse(m[1].Value);
-      var z = int.Parse(m[2].Value);
-      moons.Add(new Moon(x, y, z));
-    }
-
-    return moons.ToArray();
-  }
-
-  private static void PrintResult(string partNo, string result, Stopwatch sw) {
-    sw.Stop();
-    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
-    sw.Restart();
-  }
-
-  internal static partial class MyRegex {
-    [GeneratedRegex(@"(-?\d+)", RegexOptions.Singleline)]
-    public static partial Regex InputRegex();
   }
 }
