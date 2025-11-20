@@ -1,34 +1,14 @@
-﻿using System.Diagnostics;
-using AocHelper;
+﻿using AocHelper;
 using Spacecraft;
 
 namespace Day07;
 
-internal static class Program {
+internal static partial class Program {
+  private const string Title = "\n## Day 7: Amplification Circuit ##";
+  private const string AdventOfCode = "https://adventofcode.com/2019/day/7";
+
   private const long ExpectedPartOne = 880726;
   private const long ExpectedPartTwo = 4931744;
-
-  public static int Main(string[] args) {
-    Console.WriteLine("\n## Day 7: Amplification Circuit ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/7");
-
-    long resultPartOne = -1;
-    long resultPartTwo = -1;
-
-    foreach (var filePath in args) {
-      Console.WriteLine($"\nFile: {filePath}\n");
-      long[] program = GetData(filePath);
-      var stopwatch = Stopwatch.StartNew();
-
-      resultPartOne = PartOne(program);
-      PrintResult("1", resultPartOne.ToString(), stopwatch);
-
-      resultPartTwo = PartTwo(program);
-      PrintResult("2", resultPartTwo.ToString(), stopwatch);
-    }
-
-    return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
-  }
 
   private static long PartOne(long[] program) {
     long maxSignal = 0;
@@ -60,7 +40,7 @@ internal static class Program {
     long maxSignal = 0;
 
     foreach (var phase in GetPhasingSequences(5, 9)) {
-      var phaseInput = Helper.CreateArray(5, true);
+      bool[] phaseInput = Helper.CreateArray(5, true);
 
       var amps = new IntcodeComputer[5];
       for (var i = 0; i < 5; i++)
@@ -88,16 +68,6 @@ internal static class Program {
     return maxSignal;
   }
 
-  private static long[] GetData(string filePath) {
-    using var streamReader = new StreamReader(filePath);
-    var data = streamReader
-      .ReadToEnd()
-      .Split(',', StringSplitOptions.RemoveEmptyEntries)
-      .ToLongArray();
-
-    return data;
-  }
-
   private static List<int[]> GetPhasingSequences(int min, int max) {
     var combos = new List<int[]>();
     for (int i = min; i < max + 1; i++)
@@ -112,11 +82,5 @@ internal static class Program {
                       combos.Add([i, j, k, l, m]);
                     }
     return combos;
-  }
-
-  private static void PrintResult(string partNo, string result, Stopwatch sw) {
-    sw.Stop();
-    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
-    sw.Restart();
   }
 }
