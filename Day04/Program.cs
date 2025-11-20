@@ -2,16 +2,14 @@
 
 namespace Day04;
 
-internal static class Program
-{
+internal static class Program {
   private const long ExpectedPartOne = 2050;
   private const long ExpectedPartTwo = 1390;
 
-  public static int Main(string[] args)
-  {
+  public static int Main(string[] args) {
     Console.WriteLine("\n## Day 4: Secure Container ##");
     Console.WriteLine("https://adventofcode.com/2019/day/4");
- 
+
     var stopwatch = Stopwatch.StartNew();
     Console.WriteLine();
 
@@ -24,15 +22,13 @@ internal static class Program
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
-  private static long PartOne()
-  {
+  private static long PartOne() {
     int min = 128392;
     int max = 643281;
 
     int validPasswordCount = 0;
 
-    for (var i = min; i <= max; i++)
-    {
+    for (var i = min; i <= max; i++) {
       var pwd = i.ToDigitArray();
       if (!HasTwoAdjacentNumbers(pwd))
         continue;
@@ -45,15 +41,13 @@ internal static class Program
     return validPasswordCount;
   }
 
-  private static long PartTwo()
-  {
+  private static long PartTwo() {
     int min = 128392;
     int max = 643281;
 
     int validPasswordCount = 0;
 
-    for (var i = min; i <= max; i++)
-    {
+    for (var i = min; i <= max; i++) {
       var pwd = i.ToDigitArray();
       if (!HasOnlyTwoAdjacentNumbers(pwd))
         continue;
@@ -66,24 +60,20 @@ internal static class Program
     return validPasswordCount;
   }
 
-  private static int[] ToDigitArray(this int n)
-  {
+  private static int[] ToDigitArray(this int n) {
     var arr = new int[NumDigits(n)];
-    for (int i = arr.Length - 1; i >= 0; i--)
-    {
+    for (int i = arr.Length - 1; i >= 0; i--) {
       arr[i] = n % 10;
       n /= 10;
     }
     return arr;
   }
 
-  private static bool HasOnlyTwoAdjacentNumbers(int[] code)
-  {
-    int[] workingArr = [ -1, .. code, -1 ];
-    for (var i = 1; i < code.Length; i++)
-    {
+  private static bool HasOnlyTwoAdjacentNumbers(int[] code) {
+    int[] workingArr = [-1, .. code, -1];
+    for (var i = 1; i < code.Length; i++) {
       var cur1 = workingArr[i];
-      if (cur1 == workingArr[i + 1] 
+      if (cur1 == workingArr[i + 1]
           && cur1 != workingArr[i - 1]
           && cur1 != workingArr[i + 2])
         return true;
@@ -91,20 +81,16 @@ internal static class Program
     return false;
   }
 
-  private static bool HasTwoAdjacentNumbers(int[] code)
-  {
-    for (var i = 0; i < code.Length - 1; i++)
-    {
+  private static bool HasTwoAdjacentNumbers(int[] code) {
+    for (var i = 0; i < code.Length - 1; i++) {
       if (code[i] == code[i + 1])
         return true;
     }
     return false;
   }
 
-  private static bool IsNeverDecreasing(int[] code)
-  {
-    for (var i = 0; i < code.Length - 1; i++)
-    {
+  private static bool IsNeverDecreasing(int[] code) {
+    for (var i = 0; i < code.Length - 1; i++) {
       if (code[i] > code[i + 1])
         return false;
     }
@@ -112,10 +98,8 @@ internal static class Program
 
   }
 
-  private static int NumDigits(int n)
-  {
-    if (n < 0)
-    {
+  private static int NumDigits(int n) {
+    if (n < 0) {
       n = (n == int.MinValue) ? int.MaxValue : -n;
     }
     if (n < 10) return 1;
@@ -130,8 +114,7 @@ internal static class Program
     return 10;
   }
 
-  private static void PrintResult(string partNo, string result, Stopwatch sw)
-  {
+  private static void PrintResult(string partNo, string result, Stopwatch sw) {
     sw.Stop();
     Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
     sw.Restart();
