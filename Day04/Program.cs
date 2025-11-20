@@ -1,30 +1,14 @@
-﻿using System.Diagnostics;
+﻿namespace Day04;
 
-namespace Day04;
+internal static partial class Program {
+  private const string Title = "\n## Day 4: Secure Container ##";
+  private const string AdventOfCode = "https://adventofcode.com/2019/day/4";
 
-internal static class Program {
   private const long ExpectedPartOne = 2050;
   private const long ExpectedPartTwo = 1390;
 
-  public static int Main(string[] args) {
-    Console.WriteLine("\n## Day 4: Secure Container ##");
-    Console.WriteLine("https://adventofcode.com/2019/day/4");
-
-    var stopwatch = Stopwatch.StartNew();
-    Console.WriteLine();
-
-    var resultPartOne = PartOne();
-    PrintResult("1", resultPartOne.ToString(), stopwatch);
-
-    var resultPartTwo = PartTwo();
-    PrintResult("2", resultPartTwo.ToString(), stopwatch);
-
-    return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
-  }
-
   private static long PartOne() {
-    int min = 128392;
-    int max = 643281;
+    (int min, int max) = (128392, 643281);
 
     int validPasswordCount = 0;
 
@@ -42,8 +26,7 @@ internal static class Program {
   }
 
   private static long PartTwo() {
-    int min = 128392;
-    int max = 643281;
+    (int min, int max) = (128392, 643281);
 
     int validPasswordCount = 0;
 
@@ -112,11 +95,5 @@ internal static class Program {
     if (n < 100000000) return 8;
     if (n < 1000000000) return 9;
     return 10;
-  }
-
-  private static void PrintResult(string partNo, string result, Stopwatch sw) {
-    sw.Stop();
-    Console.WriteLine($"Part {partNo} Result: {result} in {sw.Elapsed.TotalMilliseconds}ms");
-    sw.Restart();
   }
 }
