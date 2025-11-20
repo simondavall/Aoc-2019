@@ -4,7 +4,7 @@ internal static partial class Program {
   private const string Title = "\n## Day 1: The Tyranny of the Rocket Equation ##";
   private const string AdventOfCode = "https://adventofcode.com/2019/day/1";
 
- private const long ExpectedPartOne = 3226822;
+  private const long ExpectedPartOne = 3226822;
   private const long ExpectedPartTwo = 4837367;
 
   private static long PartOne(int[] modules) {
