@@ -52,11 +52,11 @@ internal static class Program {
 
     var idx = 0;
     long currentScore = 0;
-    long ball_position = 0, paddle = 0;
+    long ball = 0, paddle = 0;
 
     while (!computer.IsHalted) {
       if (computer.IsAwaitingInput) {
-        var move = ball_position.CompareTo(paddle);
+        var move = ball.CompareTo(paddle);
         computer.SetInput(move);
       }
       computer.Execute();
@@ -66,7 +66,7 @@ internal static class Program {
           currentScore = output[i + 2];
         }
         if (output[i + 2] == 4) {
-          ball_position = output[i];
+          ball = output[i];
         } else if (output[i + 2] == 3) {
           paddle = output[i];
         }
