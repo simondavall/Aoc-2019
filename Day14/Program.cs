@@ -7,8 +7,7 @@ internal static partial class Program {
   private const string Title = "\n## Day 14: Space Stoichiometry ##";
   private const string AdventOfCode = "https://adventofcode.com/2019/day/14";
   private const long ExpectedPartOne = 443537;
-  private const long ExpectedPartTwo = 0;
-  private const bool Verbose = false;
+  private const long ExpectedPartTwo = 2910558;
 
   public static int Main(string[] args) {
     Console.WriteLine(Title);
@@ -64,11 +63,4 @@ internal static partial class Program {
     [GeneratedRegex(@"(\d+\s\w+)", RegexOptions.Singleline)]
     public static partial Regex InputRegex();
   }
-
-  internal static void ConsoleWriteLine(string message){
-    if (Verbose){
-      Console.WriteLine(message);
-    }
-  }
-
 }

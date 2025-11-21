@@ -1,4 +1,4 @@
-INPUTS=sample.txt sample2.txt sample3.txt sample4.txt sample5.txt input.txt
+INPUTS=sample3.txt sample4.txt sample5.txt input.txt
 
 .PHONY: test
 

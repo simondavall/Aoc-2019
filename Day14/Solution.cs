@@ -3,78 +3,92 @@
 namespace Day14;
 
 internal static partial class Program {
+
   private static long PartOne(Reaction[] reactions) {
-    var excess = new Dictionary<string, long>();
+    Dictionary<string, long> _excess = [];
     var finalAmount = new Dictionary<string, long>();
 
     foreach (var r in reactions)
-      excess[r.Output.Name] = 0;
+      _excess[r.Output.Name] = 0;
 
     List<Chemical> result = [];
-    var fuel = reactions.SingleOrDefault(x => x.Output.Name == "FUEL")
-      ?? throw new ApplicationException("Did not find reaction for FUEL");
+    var fuel = reactions.Single(x => x.Output.Name == "FUEL");
 
-    ConsoleWriteLine($"Add {fuel.Inputs.Print()} to queue");
     var q = new Queue<Chemical>(fuel.Inputs);
     while (q.Count > 0) {
       var cur = q.Dequeue();
-      ConsoleWriteLine($"Working with {cur}");
-      if (excess[cur.Name] > cur.Amount) {
-        excess[cur.Name] -= cur.Amount;
+      if (_excess[cur.Name] > cur.Amount) {
+        _excess[cur.Name] -= cur.Amount;
         cur.Amount = 0;
       } else {
-        cur.Amount -= excess[cur.Name];
-        excess[cur.Name] = 0;
+        cur.Amount -= _excess[cur.Name];
+        _excess[cur.Name] = 0;
       }
-      ConsoleWriteLine($"After removing excess: {cur}");
-      var reaction = reactions.SingleOrDefault(x => x.Output.Name == cur.Name)
-        ?? throw new ApplicationException($"Did not find reaction for {cur.Name}");
+      var reaction = reactions.Single(x => x.Output.Name == cur.Name);
 
       if (reaction.Inputs[0].Name == "ORE") {
-        ConsoleWriteLine($"Found ORE requirer, adding to final Amount: {cur}");
         finalAmount.AddOrUpdate(cur.Name, cur.Amount);
-        ConsoleWriteLine($"finalAmount: {finalAmount.Print()}");
         continue;
       }
 
       var requiredAmount = cur.Amount;
-      ConsoleWriteLine($"Required amount: {requiredAmount} of {reaction.Output}");
       var createMultiplier = DivideAndRoundUp(requiredAmount, reaction.Output.Amount);
-      ConsoleWriteLine($"Create Multiplier: {createMultiplier}");
       var amountCreated = reaction.Output.Amount * createMultiplier;
-      ConsoleWriteLine($"Amount created: {amountCreated}");
-      excess[reaction.Output.Name] += amountCreated - cur.Amount;
+      _excess[reaction.Output.Name] += amountCreated - cur.Amount;
 
       foreach (var chem in reaction.Inputs) {
-        ConsoleWriteLine($"Adding {chem * createMultiplier} to the queue");
         q.Enqueue(chem * createMultiplier);
       }
-      ConsoleWriteLine($"Queue contents: {q.ToArray().Print()}");
     }
 
-    long tally = 0;
+    long totalOreRequired = 0;
     foreach (var (k, v) in finalAmount) {
       var chem = reactions.Single(x => x.Output.Name == k);
-      ConsoleWriteLine($"Chemical:{chem}, Amount:{v}");
-      var xx = DivideAndRoundUp(v, chem.Output.Amount);
-      ConsoleWriteLine($"Multiplier: {xx}");
-      var ore = chem.Inputs[0].Amount * xx;
-      tally += ore;
+      var multiplier = DivideAndRoundUp(v, chem.Output.Amount);
+      var ore = chem.Inputs[0].Amount * multiplier;
+      totalOreRequired += ore;
     }
-
-    return tally;
+    return totalOreRequired;
   }
 
   private static long PartTwo(Reaction[] reactions) {
-    var fuelMultiplier = 100;
-    foreach(var r in reactions){
-      r.Output.Amount *= fuelMultiplier;
-      Array.ForEach(r.Inputs, x => x.Amount *= fuelMultiplier);
-    }
-    
-    var oreRequired = PartOne(reactions);
+    const long OneTrillion = 1_000_000_000_000;
+    long fuelAmount = 1_000_000;
 
-    return oreRequired;
+    var origFuel = reactions.Single(x => x.Output.Name == "FUEL");
+    var origFuelInputs = new List<Chemical>();
+    Array.ForEach(origFuel.Inputs, x => origFuelInputs.Add(new Chemical(x.Name, x.Amount)));
+
+    long increment = 1<<20; // 2 pow 20 = 1048576
+    var tooHigh = false;
+    while (true) {
+      var fuel = reactions.Single(x => x.Output.Name == "FUEL");
+      for(var i = 0; i < fuel.Inputs.Length; i++)
+        fuel.Inputs[i].Amount = origFuelInputs[i].Amount * fuelAmount;
+
+      var oreRequired = PartOne(reactions);
+      if (oreRequired > OneTrillion){
+        if (!tooHigh){
+          tooHigh = true;
+          increment = ReduceIncrement(increment);
+        } 
+        fuelAmount -= increment;
+      } else if (oreRequired < OneTrillion) {
+        if (increment == 1){
+          return fuelAmount;
+        }
+        if (tooHigh){
+          tooHigh = false;
+          increment = ReduceIncrement(increment);
+        }
+        fuelAmount += increment;
+      }
+    }
+  }
+
+  private static long ReduceIncrement(long increment){
+    increment /= 2;
+    return increment > 0 ? increment : 1;
   }
 
   private static void AddOrUpdate(this Dictionary<string, long> dict, string key, long value) {
