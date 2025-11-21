@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace AocHelper;
 
 public static class Helper
@@ -163,7 +165,7 @@ public static class Helper
     return list.OrderDescending().ToList();
   }
 
-  public static string Print(this long[] arr, int max = 10)
+  public static string Print<T>(this T[] arr, int max = 10)
   {
     if (arr.Length > max)
     {
@@ -173,5 +175,18 @@ public static class Helper
     {
       return $"[{string.Join(", ", arr)}]";
     }
+  }
+
+  public static string Print<TKey, TValue>(this Dictionary<TKey, TValue> dict, int max = 10) where TKey: notnull
+  {
+    var str = new StringBuilder();
+    foreach(var (k, v) in dict){
+     str.Append($"[{k}:{v}], ");
+     if (--max == 0){
+       str.Append($"... max {max} shown");
+       break;
+     }
+    }
+    return str.ToString();
   }
 }

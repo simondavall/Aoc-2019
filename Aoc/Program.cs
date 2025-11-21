@@ -15,8 +15,6 @@ internal static class Aoc
     internal static void Main()
     {
         var stopwatch = Stopwatch.StartNew();
-        
-        var result = 0;
         var count = 0;
         List<int> failed = [];
         
@@ -48,7 +46,7 @@ internal static class Aoc
         stopwatch.Stop();
         Console.WriteLine($"All solutions ran in (ms): {stopwatch.ElapsedMilliseconds}");
         
-        if (result > 0)
+        if (failed.Count > 0)
             Console.Write($"Incorrect results found for {failed.Count}/{count} solutions.");
         else
             Console.Write($"{count}/{count} solutions passed successfully!.");
