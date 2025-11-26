@@ -15,7 +15,7 @@ internal static partial class Program {
       computer.Execute();
     }
     long tally = 0;
-    var output = computer.FullOutput;
+    var output = computer.GetOutput();
     for (var i = 2; i < output.Length; i += 3) {
       if (output[i] == 2) {
         tally++;
@@ -29,7 +29,6 @@ internal static partial class Program {
     var computer = new IntcodeComputer(program);
     computer.SetMemory(0, 2);
 
-    var idx = 0;
     long currentScore = 0;
     long ball = 0, paddle = 0;
 
@@ -39,8 +38,8 @@ internal static partial class Program {
         computer.SetInput(move);
       }
       computer.Execute();
-      var output = computer.FullOutput;
-      for (var i = idx; i < output.Length; i += 3) {
+      var output = computer.GetOutput();
+      for (var i = 0; i < output.Length; i += 3) {
         if (output[i] == -1 && output[i + 1] == 0) {
           currentScore = output[i + 2];
         }
@@ -50,7 +49,6 @@ internal static partial class Program {
           paddle = output[i];
         }
       }
-      idx = output.Length;
     }
 
     return currentScore;

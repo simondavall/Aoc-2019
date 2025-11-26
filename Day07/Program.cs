@@ -28,7 +28,7 @@ internal static partial class Program {
           }
           amp.Execute();
         }
-        lastOutput = amp.GetLastOutput;
+        lastOutput = amp.GetOutput()[^1];
       }
       maxSignal = Math.Max(maxSignal, lastOutput);
     }
@@ -53,8 +53,12 @@ internal static partial class Program {
             amps[cur].SetInput(phase[cur]);
             phaseInput[cur] = false;
           } else {
-            var prevAmpOutput = amps[(cur + 4) % 5].GetLastOutput;
-            amps[cur].SetInput(prevAmpOutput);
+            var prevAmpOutput = amps[(cur + 4) % 5].GetOutput();
+            if (prevAmpOutput.Length > 0)
+              amps[cur].SetInput(prevAmpOutput[^1]);
+            else
+              amps[cur].SetInput(0);
+
           }
         }
         amps[cur].Execute();
@@ -62,7 +66,7 @@ internal static partial class Program {
         cur = (cur + 1) % 5;
       }
 
-      maxSignal = Math.Max(maxSignal, amps[4].GetLastOutput);
+      maxSignal = Math.Max(maxSignal, amps[4].GetOutput()[^1]);
     }
 
     return maxSignal;

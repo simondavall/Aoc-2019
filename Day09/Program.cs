@@ -19,7 +19,7 @@ internal static partial class Program {
       computer.Execute();
     }
 
-    return computer.GetLastOutput;
+    return computer.GetOutput()[^1];
   }
 
   private static long PartTwo(long[] program) {
@@ -32,6 +32,6 @@ internal static partial class Program {
       computer.Execute();
     }
 
-    return computer.GetLastOutput;
+    return computer.GetOutput()[^1];
   }
 }

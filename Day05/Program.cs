@@ -19,9 +19,10 @@ internal static partial class Program {
       computer.Execute();
     }
 
-    Console.WriteLine($"Full output: {computer.FullOutput.Print()}");
+    var output = computer.GetOutput();
+    Console.WriteLine($"Full output: {output.Print()}");
 
-    return computer.GetLastOutput;
+    return output[^1];
   }
 
   private static long PartTwo(long[] program) {
@@ -33,6 +34,6 @@ internal static partial class Program {
       computer.Execute();
     }
 
-    return computer.GetLastOutput;
+    return computer.GetOutput()[^1];
   }
 }

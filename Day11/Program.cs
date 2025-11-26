@@ -1,4 +1,6 @@
-﻿using Spacecraft;
+﻿using System.Diagnostics;
+using AocHelper;
+using Spacecraft;
 
 namespace Day11;
 
@@ -23,8 +25,8 @@ internal static partial class Program {
         computer.SetInput(curInput);
       }
       computer.Execute();
-      if (computer.FullOutput.Length >= 2) {
-        var output = computer.FullOutput[^2..];
+      var output = computer.GetOutput();
+      if (output.Length == 2) {
         map[(curPos.x, curPos.y)] = output[0];
         curDir = ChangeDirection(output[1], curDir);
         (int dx, int dy) = Directions[curDir];
@@ -48,8 +50,9 @@ internal static partial class Program {
         computer.SetInput(curInput);
       }
       computer.Execute();
-      if (computer.FullOutput.Length >= 2) {
-        var output = computer.FullOutput[^2..];
+      var output = computer.GetOutput();
+
+      if (output.Length == 2) {
         map[(curPos.x, curPos.y)] = output[0];
         curDir = ChangeDirection(output[1], curDir);
         (int dx, int dy) = Directions[curDir];
