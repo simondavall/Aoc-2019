@@ -1,12 +1,7 @@
-# Advent of Code 2019 #
-## Day 1: The Tyranny of the Rocket Equation ##
-https://adventofcode.com/2019/day/1
+## Day 15: Oxygen System ##
+https://adventofcode.com/2019/day/15
 
-Part 1\
-Result: 0\
-Time elapsed (ms): 0.0000
+File: input.txt
 
-Part 2\
-Result: 0\
-Time elapsed (ms): 0.0000
-
+Part 1 Result: 294 in 28.8559ms
+Part 2 Result: 388 in 39.2625ms

@@ -4,63 +4,74 @@ namespace Spacecraft;
 
 public class IntcodeComputer {
   private long _ip;
-  private long _offset;
+  private long _relativeBaseOffset;
   private const int MAX_RAM = 10_000;
-  private readonly long[] _ram = [];
+  private readonly long[] _ram = new long[MAX_RAM];
   private bool _isHalted = false;
   private bool _isAwaitingInput = false;
+  private int _inputMode;
   private readonly List<long> _output = [];
-  private readonly long[] param = new long[3];
-  private int[] _paramMode = [];
+
+  private IntcodeComputer(long[] ram, long ip, long relativeBaseOffset, bool isAwaitingInput, int inputMode) {
+    Array.Copy(ram, _ram, ram.Length);
+    _ip = ip;
+    _relativeBaseOffset = relativeBaseOffset;
+    _isAwaitingInput = isAwaitingInput;
+    _inputMode = inputMode;
+  }
 
   public IntcodeComputer(long[] program) {
     Debug.Assert(program.Length < MAX_RAM, $"Out Of Memory. Program is too large, get some more RAM. Size:{program.Length}");
     _ip = 0;
-    _offset = 0;
-    _ram = new long[MAX_RAM];
+    _relativeBaseOffset = 0;
     Array.Copy(program, _ram, program.Length);
+  }
+
+  public IntcodeComputer Clone() {
+    return new IntcodeComputer(_ram, _ip, _relativeBaseOffset, _isAwaitingInput, _inputMode);
   }
 
   public void Execute() {
     while (!_isAwaitingInput && !_isHalted) {
       Debug.Assert(_ip < _ram.Length && _ip >= 0, $"Instruction pointer is out of bounds. Terminaling program. Ip:{_ip}");
 
-      var opCode = GetNextOpCode();
+      var (opCode, modes) = GetNextOpCode();
       switch (opCode) {
         case 1:
-          Add();
+          Add(modes);
           break;
 
         case 2:
-          Multiply();
+          Multiply(modes);
           break;
 
         case 3:
           _isAwaitingInput = true;
+          _inputMode = modes[0];
           break;
 
         case 4:
-          _output.Add(Output());
+          _output.Add(Output(modes));
           break;
 
         case 5:
-          JumpIfTrue();
+          JumpIfTrue(modes);
           break;
 
         case 6:
-          JumpIfFalse();
+          JumpIfFalse(modes);
           break;
 
         case 7:
-          LessThan();
+          LessThan(modes);
           break;
 
         case 8:
-          Equals();
+          Equals(modes);
           break;
 
         case 9:
-          AdjustRelativeBaseOffset();
+          AdjustRelativeBaseOffset(modes);
           break;
 
         case 99:
@@ -102,7 +113,7 @@ public class IntcodeComputer {
 
   public bool IsAwaitingInput => _isAwaitingInput;
 
-  private int GetNextOpCode() {
+  private (int, int[]) GetNextOpCode() {
     int[] modes = new int[3];
     var instruction = (int)_ram[_ip];
     var opcode = instruction % 100;
@@ -113,95 +124,92 @@ public class IntcodeComputer {
       instruction /= 10;
     }
 
-    _paramMode = modes;
-
-    return opcode;
+    return (opcode, modes);
   }
 
-  private void Add() {
+  private void Add(int[] modes) {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
-
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    param[1] = GetParam(_paramMode[1], _ip + 2);
-    param[2] = GetWriteParam(_paramMode[2], _ip + 3);
-    _ram[param[2]] = param[0] + param[1];
+    long a = GetParam(modes[0], _ip + 1);
+    long b = GetParam(modes[1], _ip + 2);
+    long c = GetWriteParam(modes[2], _ip + 3);
+    _ram[c] = a + b;
     _ip += 4;
   }
 
-  private void Multiply() {
+  private void Multiply(int[] modes) {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    param[1] = GetParam(_paramMode[1], _ip + 2);
-    param[2] = GetWriteParam(_paramMode[2], _ip + 3);
-    _ram[param[2]] = param[0] * param[1];
+    long a = GetParam(modes[0], _ip + 1);
+    long b = GetParam(modes[1], _ip + 2);
+    long c = GetWriteParam(modes[2], _ip + 3);
+    _ram[c] = a * b;
     _ip += 4;
   }
 
   private void Input(long input) {
     Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetWriteParam(_paramMode[0], _ip + 1);
-    _ram[param[0]] = input;
+    long a = GetWriteParam(_inputMode, _ip + 1);
+    _ram[a] = input;
     _ip += 2;
   }
 
-  private long Output() {
+  private long Output(int[] modes) {
     Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
+    long a = GetParam(modes[0], _ip + 1);
     _ip += 2;
 
-    return param[0];
+    return a;
   }
 
-  private void JumpIfTrue() {
+  private void JumpIfTrue(int[] modes) {
     Debug.Assert(_ip + 3 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    param[1] = GetParam(_paramMode[1], _ip + 2);
-    if (param[0] > 0)
-      _ip = param[1];
+    long a = GetParam(modes[0], _ip + 1);
+    long b = GetParam(modes[1], _ip + 2);
+    if (a > 0)
+      _ip = b;
     else
       _ip += 3;
   }
 
-  private void JumpIfFalse() {
+  private void JumpIfFalse(int[] modes) {
     Debug.Assert(_ip + 3 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    param[1] = GetParam(_paramMode[1], _ip + 2);
-    if (param[0] == 0)
-      _ip = param[1];
+    long a = GetParam(modes[0], _ip + 1);
+    long b = GetParam(modes[1], _ip + 2);
+    if (a == 0)
+      _ip = b;
     else
       _ip += 3;
   }
 
-  private void LessThan() {
+  private void LessThan(int[] modes) {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    param[1] = GetParam(_paramMode[1], _ip + 2);
-    param[2] = GetWriteParam(_paramMode[2], _ip + 3);
-    _ram[param[2]] = param[0] < param[1] ? 1 : 0;
+    long a = GetParam(modes[0], _ip + 1);
+    long b = GetParam(modes[1], _ip + 2);
+    long c = GetWriteParam(modes[2], _ip + 3);
+    _ram[c] = a < b ? 1 : 0;
     _ip += 4;
   }
 
-  private void Equals() {
+  private void Equals(int[] modes) {
     Debug.Assert(_ip + 4 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    param[1] = GetParam(_paramMode[1], _ip + 2);
-    param[2] = GetWriteParam(_paramMode[2], _ip + 3);
-    _ram[param[2]] = param[0] == param[1] ? 1 : 0;
+    long a = GetParam(modes[0], _ip + 1);
+    long b = GetParam(modes[1], _ip + 2);
+    long c = GetWriteParam(modes[2], _ip + 3);
+    _ram[c] = a == b ? 1 : 0;
     _ip += 4;
   }
 
-  private void AdjustRelativeBaseOffset() {
+  private void AdjustRelativeBaseOffset(int[] modes) {
     Debug.Assert(_ip + 2 < _ram.Length, "Out of memory error. Instruction pointer requires more RAM to complete task.");
 
-    param[0] = GetParam(_paramMode[0], _ip + 1);
-    _offset += param[0];
+    long a = GetParam(modes[0], _ip + 1);
+    _relativeBaseOffset += a;
     _ip += 2;
   }
 
@@ -209,7 +217,7 @@ public class IntcodeComputer {
     return mode switch {
       0 => _ram[_ram[ip]],
       1 => _ram[ip],
-      2 => _ram[_ram[ip] + _offset],
+      2 => _ram[_ram[ip] + _relativeBaseOffset],
       _ => throw new ApplicationException($"Unknown parameter mode. Value:'{mode}'")
     };
   }
@@ -218,10 +226,8 @@ public class IntcodeComputer {
     return mode switch {
       0 => _ram[ip],
       1 => _ram[ip],
-      2 => _ram[ip] + _offset,
+      2 => _ram[ip] + _relativeBaseOffset,
       _ => throw new ApplicationException($"Unknown parameter mode. Value:'{mode}'")
     };
   }
-
-
 }

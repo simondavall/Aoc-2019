@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AocHelper;
 
 namespace Day15;
 
@@ -17,22 +18,22 @@ internal static partial class Program {
 
     foreach (var filePath in args) {
       Console.WriteLine($"\nFile: {filePath}\n");
-      string[] input = GetData(filePath);
+      long[] program = GetData(filePath);
       var stopwatch = Stopwatch.StartNew();
 
-      resultPartOne = PartOne(input);
+      resultPartOne = PartOne(program);
       PrintResult("1", resultPartOne.ToString(), stopwatch);
 
-      resultPartTwo = PartTwo(input);
+      resultPartTwo = PartTwo(program);
       PrintResult("2", resultPartTwo.ToString(), stopwatch);
     }
 
     return resultPartOne == ExpectedPartOne && resultPartTwo == ExpectedPartTwo ? 0 : 1;
   }
 
-  private static string[] GetData(string filePath) {
+  private static long[] GetData(string filePath) {
     using var streamReader = new StreamReader(filePath);
-    var data = streamReader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+    var data = streamReader.ReadToEnd().Split(',', StringSplitOptions.RemoveEmptyEntries).ToLongArray();
     return data;
   }
 

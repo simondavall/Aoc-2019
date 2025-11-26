@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AocHelper\AocHelper.csproj" />
+      <ProjectReference Include="..\Spacecraft\Spacecraft.csproj" />
     </ItemGroup>
 
     <PropertyGroup>
