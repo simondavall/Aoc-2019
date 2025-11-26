@@ -6,8 +6,8 @@ namespace Day15;
 internal static partial class Program {
   private const string Title = "\n## Day 15: Oxygen System ##";
   private const string AdventOfCode = "https://adventofcode.com/2019/day/15";
-  private const long ExpectedPartOne = 0;
-  private const long ExpectedPartTwo = 0;
+  private const long ExpectedPartOne = 294;
+  private const long ExpectedPartTwo = 388;
 
   public static int Main(string[] args) {
     Console.WriteLine(Title);
