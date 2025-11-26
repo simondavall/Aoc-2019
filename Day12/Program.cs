@@ -7,12 +7,9 @@ internal static partial class Program {
   private const long ExpectedPartOne = 7471;
   private const long ExpectedPartTwo = 376243355967784;
 
-  // This holds the number of steps to take for each file imported.
-  private static Queue<int> _totalSteps = new Queue<int>([10, 100, 1000]);
-
   private static long PartOne(Moon[] moons) {
     var step = 0;
-    var totalSteps = _totalSteps.Dequeue();
+    var totalSteps = 1000;
     while (step++ < totalSteps) {
       List<Moon> newMoons = [];
       foreach (var moon in moons) {
