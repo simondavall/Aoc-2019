@@ -20,10 +20,13 @@ internal static partial class Program {
     long tally = 0;
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
+        if (grid[y][x] == '.')
+          continue;
+
         foreach (var (_, dx, dy) in _directions) {
           var nx = x + dx;
           var ny = y + dy;
-          if (!IsInBounds(nx, ny, width, height) || grid[y][x] != '#' || grid[ny][nx] != '#') {
+          if (!IsInBounds(nx, ny, width, height) || grid[ny][nx] != '#') {
             isIntersection = false;
             break;
           }
